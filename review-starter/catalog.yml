@@ -1,0 +1,25 @@
+PREDEF:
+  - chap00-preface.re
+
+CHAPS:
+  - chap01-starter.re
+  - chap02-faq.re
+  
+  - chapxx-4geru.re
+  - chapxx-gaomar.re
+  - chapxx-hirarin.re
+  - chapxx-kenakamu.re
+  - chapxx-kobayashi-hirotada.re
+  - chapxx-miso.re
+  - chapxx-mr-mo.re
+  - chapxx-n0bisuke.re
+  - chapxx-nisshi79.re
+  - chapxx-shinbunbun.re
+  - chapxx-shoya-shiraki.re
+  - chapxx-sumihiro3.re
+  - chapxx-wakasa.re
+
+APPENDIX:
+
+POSTDEF:
+  - chap99-postscript.re

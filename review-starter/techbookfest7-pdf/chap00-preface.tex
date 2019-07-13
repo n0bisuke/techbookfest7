@@ -1,0 +1,67 @@
+\chapter{まえがき}
+\label{chap:chap00-preface}
+
+\begin{center}
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊ \reviewstrong{注意} ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+\end{center}
+
+このドキュメントは、Re:VIEWのサンプル原稿を兼ねています。
+自分の原稿を書くときは、サンプルの原稿ファイルと画像ファイルを消してください。
+
+\startercodeblockcaption{サンプルファイル（原稿と画像）の消し方（コマンドラインを知らない人はごめん！）}
+\begin{starterterminal}\seqsplit{\textdollar{} ls {-}1 *.re                  \# 原稿ファイルの一覧
+chap00{-}preface.re             \#     まえがき
+chap01{-}starter.re             \#     第1章 Starterの機能
+chap02{-}faq.re                 \#     第2章 FAQ
+chap99{-}postscript.re          \#     あとがき
+\textdollar{} rm *.re                     \# 原稿のファイルを消す
+\textdollar{} rm {-}r images/chap0?{-}*       \# 画像ファイル（が入ったディレクトリ）も消す
+\textdollar{} vi catalog.yml              \# 各章のファイル名を変更する}\end{starterterminal}
+
+本文での、1行あたりの文字数の確認：\\
+一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十
+
+埋め込みコードでの、1行あたりの文字数の確認：
+
+\begin{starterprogram}\seqsplit{123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}123456789\textunderscore{}
+一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十}\end{starterprogram}
+
+\begin{center}
+＊＊＊＊＊＊＊＊＊＊＊ 以下、まえがきのサンプル ＊＊＊＊＊＊＊＊＊＊＊\\
+\end{center}
+
+本書を手に取っていただき、ありがとうございます。
+
+本書は、XXXについてわかりやすく解説した本です。この本を読めば、XXXの基礎的な使い方が身につきます。
+
+\paragraph*{本書で得られること}
+\label{sec:-0-0-0-1}
+
+\begin{itemize}
+\item XXXについての基礎的な使い方
+\end{itemize}
+
+\paragraph*{対象読者}
+\label{sec:-0-0-0-2}
+
+\begin{itemize}
+\item XXXについて興味がある人
+\item XXXの入門書を読んだ人（まったくの初心者は対象外です）
+\end{itemize}
+
+\paragraph*{前提知識}
+\label{sec:-0-0-0-3}
+
+\begin{itemize}
+\item Linuxについての基礎知識
+\item 何らかのプログラミング言語の基礎知識
+\end{itemize}
+
+\paragraph*{問い合わせ先}
+\label{sec:-0-0-0-4}
+
+\begin{itemize}
+\item URL: https://www.example.com/
+\item Mail: support@example.com
+\item Twitter: @example
+\end{itemize}

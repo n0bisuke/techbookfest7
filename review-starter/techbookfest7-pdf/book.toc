@@ -1,0 +1,77 @@
+\contentsline {chapter}{まえがき}{i}{chapter*.1}
+\contentsline {chapter}{\numberline {第1章}Re:VIEW Starterの独自機能}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}原稿本文を書くための機能}{1}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}強調}{1}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}番号つきリストの機能強化}{2}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}ノート}{5}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}プログラムコード用のコマンドを統一}{8}{subsection.1.1.4}
+\contentsline {subsection}{\numberline {1.1.5}ターミナル画面を表す「\texttt {//terminal}」ブロック}{11}{subsection.1.1.5}
+\contentsline {subsection}{\numberline {1.1.6}プログラムコード中の長い行を自動的に折り返す}{12}{subsection.1.1.6}
+\contentsline {subsection}{\numberline {1.1.7}プログラムやターミナルの行番号を出力}{14}{subsection.1.1.7}
+\contentsline {subsection}{\numberline {1.1.8}ラベル指定なしでリスト番号を出力}{16}{subsection.1.1.8}
+\contentsline {subsection}{\numberline {1.1.9}キャプションなしでもリスト番号だけを出力}{17}{subsection.1.1.9}
+\contentsline {subsection}{\numberline {1.1.10}プログラムのキャプション直後の改ページを抑制}{18}{subsection.1.1.10}
+\contentsline {subsection}{\numberline {1.1.11}コラム内の脚注}{19}{subsection.1.1.11}
+\contentsline {subsection}{\numberline {1.1.12}右寄せ、左寄せ、センタリング}{19}{subsection.1.1.12}
+\contentsline {subsection}{\numberline {1.1.13}章の概要}{20}{subsection.1.1.13}
+\contentsline {subsection}{\numberline {1.1.14}図が次のページに送られるときにスペースを空けない}{21}{subsection.1.1.14}
+\contentsline {subsection}{\numberline {1.1.15}図のまわりを線で囲む}{23}{subsection.1.1.15}
+\contentsline {subsection}{\numberline {1.1.16}何もしない命令「\texttt {@}\textless {}letitgo\textgreater {}\{...\}」}{24}{subsection.1.1.16}
+\contentsline {subsection}{\numberline {1.1.17}章や項を参照する「\texttt {@}\texttt {\textless {}secref\textgreater {}\{\}}」}{25}{subsection.1.1.17}
+\contentsline {subsection}{\numberline {1.1.18}「{\gtfamily \sffamily @}{\gtfamily \sffamily \textless {}chapref\textgreater {}\{\}}」や「{\gtfamily \sffamily @}{\gtfamily \sffamily \textless {}hd\textgreater {}\{\}}」をリンクに}{28}{subsection.1.1.18}
+\contentsline {subsection}{\numberline {1.1.19}その他}{29}{subsection.1.1.19}
+\contentsline {section}{\numberline {1.2}レイアウトやデザインに関する変更や拡張}{29}{section.1.2}
+\contentsline {subsection}{\numberline {1.2.1}フォントサイズの変更に対応}{29}{subsection.1.2.1}
+\contentsline {subsection}{\numberline {1.2.2}A5サイズの指定に対応}{30}{subsection.1.2.2}
+\contentsline {subsection}{\numberline {1.2.3}本文の幅を全角40文字より長くできる}{31}{subsection.1.2.3}
+\contentsline {subsection}{\numberline {1.2.4}奇数ページと偶数ページで左右の余白を変える}{31}{subsection.1.2.4}
+\contentsline {subsection}{\numberline {1.2.5}ページ上部の余白を減らし、その分を本文の高さに追加}{31}{subsection.1.2.5}
+\contentsline {subsection}{\numberline {1.2.6}ソースコード表示用のフォントを変更}{32}{subsection.1.2.6}
+\contentsline {subsection}{\numberline {1.2.7}章や節のデザインを変更可能}{33}{subsection.1.2.7}
+\contentsline {subsection}{\numberline {1.2.8}章のタイトルページを作成可能}{33}{subsection.1.2.8}
+\contentsline {subsection}{\numberline {1.2.9}目次の文字を小さく、行間を狭く}{34}{subsection.1.2.9}
+\contentsline {subsection}{\numberline {1.2.10}キャプションのデザインを変更}{35}{subsection.1.2.10}
+\contentsline {subsection}{\numberline {1.2.11}引用のデザインを変更}{35}{subsection.1.2.11}
+\contentsline {subsection}{\numberline {1.2.12}ページヘッダーを変更}{36}{subsection.1.2.12}
+\contentsline {subsection}{\numberline {1.2.13}ページ番号のデザインを変更}{36}{subsection.1.2.13}
+\contentsline {subsection}{\numberline {1.2.14}箇条書きの行頭記号を変更}{36}{subsection.1.2.14}
+\contentsline {subsection}{\numberline {1.2.15}タイトルページと奥付を独立したファイルに}{37}{subsection.1.2.15}
+\contentsline {subsection}{\numberline {1.2.16}奥付が必ず最終ページになるよう修正}{37}{subsection.1.2.16}
+\contentsline {subsection}{\numberline {1.2.17}コラムがページまたぎする場合は横線を入れない}{37}{subsection.1.2.17}
+\contentsline {section}{\numberline {1.3}\LaTeX {}のコマンドやスタイルファイルに関する機能}{38}{section.1.3}
+\contentsline {subsection}{\numberline {1.3.1}スタイルシートを追加}{38}{subsection.1.3.1}
+\contentsline {subsection}{\numberline {1.3.2}コンパイル時の出力を抑制}{38}{subsection.1.3.2}
+\contentsline {subsection}{\numberline {1.3.3}\LaTeX {}コマンドにオプションを追加}{39}{subsection.1.3.3}
+\contentsline {subsection}{\numberline {1.3.4}実行する\LaTeX {}コマンドをオプションつきで出力}{39}{subsection.1.3.4}
+\contentsline {subsection}{\numberline {1.3.5}PDF生成を高速化する}{40}{subsection.1.3.5}
+\contentsline {subsection}{\numberline {1.3.6}PDFにノンブルをつける}{41}{subsection.1.3.6}
+\contentsline {subsection}{\numberline {1.3.7}rakeコマンドのデフォルトタスクを指定する}{41}{subsection.1.3.7}
+\contentsline {chapter}{\numberline {第2章}Re:VIEW Starter FAQ}{43}{chapter.2}
+\contentsline {section}{\numberline {2.1}コメント}{43}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}範囲コメントはないの？}{43}{subsection.2.1.1}
+\contentsline {subsection}{\numberline {2.1.2}行コメントを使ったら勝手に段落が分かれたんだけど、なんで？}{44}{subsection.2.1.2}
+\contentsline {section}{\numberline {2.2}箇条書き}{45}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}箇条書きで英単語が勝手に結合するんだけど？}{45}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}順序つき箇条書きに「A.」や「a.」や「i.」を使いたい}{46}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}順序つき箇条書きを入れ子にできない？}{47}{subsection.2.2.3}
+\contentsline {section}{\numberline {2.3}ブロック命令}{48}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}ブロックの中に別のブロックを入れるとエラーになるよ？}{48}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}ブロックの中に箇条書きを入れても反映されないよ？}{49}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}「\texttt {//info\{} ... \texttt {//\}}」のキャプションに「■メモ：」がつくんだけど？}{50}{subsection.2.3.3}
+\contentsline {section}{\numberline {2.4}ソースコード}{52}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}ソースコードの見た目が崩れるんだけど？}{52}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}コラム中のソースコードがページまたぎしてくれないよ？}{53}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.3}ソースコードを別ファイルから読み込む方法はないの？}{53}{subsection.2.4.3}
+\contentsline {section}{\numberline {2.5}コンパイル}{54}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}なんで\LaTeX {}のコンパイルがいつも3回実行されるの？}{54}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}コンパイルに時間かかりすぎ。もっと速くできない？}{54}{subsection.2.5.2}
+\contentsline {section}{\numberline {2.6}タイトルページ（大扉）}{54}{section.2.6}
+\contentsline {subsection}{\numberline {2.6.1}タイトルが長いので、指定した箇所で改行したいんだけど？}{54}{subsection.2.6.1}
+\contentsline {subsection}{\numberline {2.6.2}タイトルぺージがださい。もっとかっこよくならない？}{56}{subsection.2.6.2}
+\contentsline {section}{\numberline {2.7}その他}{57}{section.2.7}
+\contentsline {subsection}{\numberline {2.7.1}設定ファイルをいじったら、動かなくなった！}{57}{subsection.2.7.1}
+\contentsline {subsection}{\numberline {2.7.2}印刷用とタブレット用で設定を少し変えるにはどうするの？}{58}{subsection.2.7.2}
+\contentsline {chapter}{\numberline {第3章}みその章}{61}{chapter.3}
+\contentsline {section}{\numberline {3.1}みそ見出し}{61}{section.3.1}
+\contentsline {chapter}{あとがき}{63}{appendix*.19}
+\contentsline {section}{著者紹介}{63}{section*.20}

@@ -1,0 +1,836 @@
+\chapter{Re:VIEW Starter FAQ}
+\label{chap:chap02-faq}
+\begin{starterabstract}
+残念ながら、Re:VIEWでできないことは、Starterでもたいていできません。
+
+このFAQでは、「何ができないか？」を中心に解説します。
+\end{starterabstract}
+
+\section{コメント}
+\label{sec:2-1}
+
+\subsection{範囲コメントはないの？}
+\label{sec:2-1-1}
+
+範囲コメントは、Re:VIEWにはありませんがStarterにはあります。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{aaa
+
+\#@+++
+bbb
+
+ccc
+\#@{-}{-}{-}
+
+ddd}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+aaa
+
+ddd
+
+\endstarterresult
+
+\begin{itemize}
+\item 「\texttt{\#@+++}」から「\texttt{\#@{-}{-}{-}}」までが範囲コメントです。
+\item 「\texttt{+}」や「\texttt{{-}}」の数は3つです。それ以上でも以下でも範囲コメントとは認識されません。
+\item 範囲コメントは入れ子にできません。
+\item 「\texttt{//embed}」の中では使わないでください。
+\item これは実験的な機能なので、将来は仕様が変更したり機能が削除される可能性があります。
+   この機能にあまり依存しないようにし、できれば行コメントを使ってください。
+   一時的なコメントアウトに限定して使うのがいいでしょう。
+\end{itemize}
+
+\subsection{行コメントを使ったら勝手に段落が分かれたんだけど、なんで？}
+\label{sec:2-1-2}
+
+Re:VIEWの仕様です。
+
+たとえば次のような5行は、1つの段落になります。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+旧約聖書にある、ソドムとゴモラを滅ぼした天の火だよ。
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+旧約聖書にある、ソドムとゴモラを滅ぼした天の火だよ。
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。
+
+\endstarterresult
+
+ここで途中の行（3行目）をコメントアウトすると、段落が2つに分かれてしまいます。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+\#@\#旧約聖書にある、ソドムとゴモラを滅ぼした天の火だよ。
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。
+
+\endstarterresult
+
+なぜかというと、コメントアウトされた箇所が空行として扱われるからです、まるでこのように：
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。}\end{starterprogram}
+
+段落が分かれてしまうのはこのような理由です。
+
+Re:VIEW開発チームに問い合わせたところ、これがRe:VIEWの仕様であるという回答が返ってきました。
+しかしこの仕様だと、段落を分けずに途中の行をコメントアウトする方法がありません。
+この仕様は、仕様バグというべきものでしょう。
+
+そこでStarterでは、段落の途中の行をコメントアウトしても段落が分かれないように変更しました。
+
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
+見せてあげよう、ラピュタの雷を！
+ラーマーヤナではインドラの矢とも伝えているがね。
+全世界は再びラピュタのもとにひれ伏すことになるだろう。
+
+\endstarterresult
+
+こちらのほうが明らかに便利だし、困ることはないと思います。
+
+また「\texttt{//list}」や「\texttt{//terminal}」でも行コメントが有効（つまり読み飛ばされる）ことに注意してください。
+
+\section{箇条書き}
+\label{sec:2-2}
+
+\subsection{箇条書きで英単語が勝手に結合するんだけど？}
+\label{sec:2-2-1}
+
+Re:VIEWのバグです\footnote{少なくともRe:VIEW 3.1まではこのバグが存在します。}。
+次のように箇条書きの要素を改行すると、行がすべて連結されてしまいます。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ * aa bb
+   cc dd
+   ee ff}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{itemize}
+\item aa bbcc ddee ff
+\end{itemize}
+
+\endstarterresult
+
+これは日本語だと特に問題とはなりませんが、英語だと非常に困ります。
+
+そこでStarterでは、行を連結しないように修正しています。
+Starterだと上の例はこのように表示されます。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ * aa bb
+   cc dd
+   ee ff}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{itemize}
+\item aa bb
+   cc dd
+   ee ff
+\end{itemize}
+
+\endstarterresult
+
+\subsection{順序つき箇条書きに「A.」や「a.」や「i.」を使いたい}
+\label{sec:2-2-2}
+
+Re:VIEWではできません。
+
+Re:VIEWでは、順序つき箇条書きとしては「1. 」や「2. 」という書き方しかサポートしていません。
+数字ではなくアルファベットを使おうと「A. 」や「a. 」のようにしても、できません。
+Re:VIEWの文法を拡張するしかないです。
+
+なのでStarterでは文法を拡張し、これらの順序つき箇条書きが使えるようにしました。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ {-} 1. 項目1
+ {-} 2. 項目2
+
+ {-} A. 項目1
+ {-} B. 項目2
+
+ {-} a. 項目1
+ {-} b. 項目2}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{enumerate}
+\item[1.] 項目1
+\item[2.] 項目2
+\end{enumerate}
+
+\begin{enumerate}
+\item[A.] 項目1
+\item[B.] 項目2
+\end{enumerate}
+
+\begin{enumerate}
+\item[a.] 項目1
+\item[b.] 項目2
+\end{enumerate}
+
+\endstarterresult
+
+「\texttt{{-}}」の前と後、そして「\texttt{1.}」や「\texttt{A.}」や「\texttt{a.}」のあとにも半角空白が必要です。
+また半角空白の前の文字列がそのまま出力されるので、「\texttt{(1)}」や「\texttt{A{-}1:}」などを使えます。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ {-} (1) 項目1
+ {-} (2) 項目2
+
+ {-} (A{-}1) 項目1
+ {-} (A{-}2) 項目2}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{enumerate}
+\item[(1)] 項目1
+\item[(2)] 項目2
+\end{enumerate}
+
+\begin{enumerate}
+\item[(A{-}1)] 項目1
+\item[(A{-}2)] 項目2
+\end{enumerate}
+
+\endstarterresult
+
+\subsection{順序つき箇条書きを入れ子にできない？}
+\label{sec:2-2-3}
+
+Re:VIEWではできません。
+
+Re:VIEWでは、順序なし箇条書きは入れ子にできますが、順序つき箇条書きは入れ子にできません。
+箇条書きの入れ子をインデントで表現するような文法だとよかったのですが、残念ながらRe:VIEWはそのような仕様になっていません。
+
+そこでStarterでは、順序つき箇条書きを入れ子にできる文法を用意しました。
+行の先頭に半角空白が必要なことに注意。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ {-} (A) 大項目
+ {-}{-} (1) 中項目
+ {-}{-}{-} (1{-}a) 小項目
+ {-}{-}{-} (1{-}b) 小項目
+ {-}{-} (2) 中項目}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{enumerate}
+\item[(A)] 大項目
+
+\begin{enumerate}
+\item[(1)] 中項目
+
+\begin{enumerate}
+\item[(1{-}a)] 小項目
+\item[(1{-}b)] 小項目
+\end{enumerate}
+
+\item[(2)] 中項目
+\end{enumerate}
+
+\end{enumerate}
+
+\endstarterresult
+
+また順序なし箇条書きと順序つき箇条書きを混在できます。
+繰り返しますが、行の先頭に半角空白が必要なことに注意。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{ * 大項目
+ {-}{-} a. 中項目
+ {-}{-} b. 中項目
+ *** 小項目
+ *** 小項目}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+
+\begin{itemize}
+\item 大項目
+
+\begin{enumerate}
+\item[a.] 中項目
+\item[b.] 中項目
+
+\begin{itemize}
+\item 小項目
+\item 小項目
+\end{itemize}
+
+\end{enumerate}
+
+\end{itemize}
+
+\endstarterresult
+
+\section{ブロック命令}
+\label{sec:2-3}
+\label{sec-faq-block}
+
+\subsection{ブロックの中に別のブロックを入れるとエラーになるよ？}
+\label{sec:2-3-1}
+\label{subsec-faq-block1}
+
+Re:VIEWの仕様です。
+
+Re:VIEWでは、たとえば「\texttt{//note\{} ... \texttt{//\}}」の中に「\texttt{//list\{} ... \texttt{//\}}」を入れると、エラーになります。
+これはかなり困った仕様です。
+
+そこでStarterではこれを改良し、ブロック命令の入れ子ができるようになりました。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//note[■ノートの中にソースコード]\{
+
+ノートの中にソースコードを入れるサンプル。
+
+//list[][サンプルコード]\{
+print("Hello, World!")
+//\}
+
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{starternote}{■ノートの中にソースコード}
+\begin{starternoteinner}
+
+ノートの中にソースコードを入れるサンプル。
+
+\startercodeblockcaption{サンプルコード}
+\label{}
+\end{starternoteinner}
+\begin{starterprogram}\seqsplit{print("Hello, World!")}\end{starterprogram}
+\end{starternote}
+\endstarterresult
+
+ただし他のブロック命令を含められる（つまり入れ子の外側になれる）のは、今のところ次のブロック命令だけです。
+
+\begin{itemize}
+\item \texttt{//note}
+\item \texttt{//quote}
+\item \texttt{//memo}
+\end{itemize}
+
+これ以外の命令を入れ子対応にしたい場合は、ハッシュタグ「\#reviewstarter」をつけてツイートしてください。
+
+また以下のブロック命令は、その性質上他のブロック命令を含めることはできません。
+
+\begin{itemize}
+\item \texttt{//list}, \texttt{//emlist}, \texttt{//listnum}, \texttt{//emlist}
+\item \texttt{//cmd}, \texttt{//terminal}
+\item \texttt{//program}
+\item \texttt{//source}
+\end{itemize}
+
+なおStarterでは、以前は「\texttt{====[note]} ... \texttt{====[/note]}」といった記法を使っていました。この記法は今でも使えますが、ブロック命令の入れ子がサポートされた現在では使う必要もないでしょう。
+
+\subsection{ブロックの中に箇条書きを入れても反映されないよ？}
+\label{sec:2-3-2}
+\label{subsec-faq-block2}
+
+Re:VIEWの仕様です。
+
+Re:VIEWでは、たとえば「\texttt{//note\{} ... \texttt{//\}}」の中に「\texttt{ * 項目1}」のような箇条書きを入れても、箇条書きとして解釈されません。
+これはかなり困った仕様です。
+
+そこでStarterではこれを改良し、ブロック命令の中に箇条書きが入れられるようになりました。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//note[■ノートの中に箇条書きやソースコードを入れる例]\{
+
+ * 項目1
+ * 項目2
+
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{starternote}{■ノートの中に箇条書きやソースコードを入れる例}
+\begin{starternoteinner}
+
+\begin{itemize}
+\item 項目1
+\item 項目2
+\end{itemize}
+
+\end{starternoteinner}
+\end{starternote}
+\endstarterresult
+
+現在のところ、以下のブロック命令で箇条書きをサポートしています。
+
+\begin{itemize}
+\item \texttt{//note}
+\item \texttt{//quote}
+\item \texttt{//memo}
+\end{itemize}
+
+これ以外の命令を入れ子対応にしたい場合は、ハッシュタグ「\#reviewstarter」をつけてツイートしてください。
+
+\subsection{「\texttt{//info\{} ... \texttt{//\}}」のキャプションに「■メモ：」がつくんだけど？}
+\label{sec:2-3-3}
+\label{subsec-faq-memo}
+
+Re:VIEWの仕様です。
+「\texttt{//info}」だけでなく、他の「\texttt{//tip}」や「\texttt{//info}」や「\texttt{//warning}」や「\texttt{//important}」や「\texttt{//caution}」や「\texttt{//notice}」も、すべて「■メモ：」になります！
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//memo[memoサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{memoサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//tip[tipサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{tipサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//info[infoサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{infoサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//warning[warningサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{warningサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//important[importantサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{importantサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//caution[cautionサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{cautionサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//notice[noticeサンプル]\{
+//\}}\end{starterprogram}
+\noindent
+\reviewem{表示結果：}
+
+\starterresult
+\begin{reviewminicolumn}
+\reviewminicolumntitle{noticeサンプル}
+\end{reviewminicolumn}
+\endstarterresult
+
+わけがわからないよ。
+
+これらのかわりに、Starterでは「\texttt{//note\{} ... \texttt{//\}}」を使ってください。
+詳しくは\reviewsecref{「1.1.3 ノート」}{sec:1-1-3}を参照のこと。
+
+\section{ソースコード}
+\label{sec:2-4}
+
+\subsection{ソースコードの見た目が崩れるんだけど？}
+\label{sec:2-4-1}
+
+恐らく、ソースコードの中にタブ文字があることが原因でしょう。
+
+Re:VIEWでは、「\texttt{//list}」などに含まれるタブ文字を半角空白に展開してくれます。
+しかしこの展開方法に根本的なバグがあるため、正しく展開してくれません。
+
+たとえば次の例では、1つ目のコメントの前には半角空白を使い、2つ目のコメントの前にはタブ文字を使っています。
+
+\startercodeblockcaption{サンプル}
+\begin{starterprogram}\seqsplit{//terminal\{
+\textdollar{} printf "Hi\reviewbackslash{}n"         \# コメントの前に半角空白
+\textdollar{} printf "Hi\reviewbackslash{}n"         \# コメントの前にタブ文字
+//\}}\end{starterprogram}
+
+これをRe:VIEWでコンパイルすると、次のようにタブ文字のある行は表示が崩れてしまいます。
+しかもエラーメッセージが出るわけではないので、なかなか気づきません。
+
+\noindent
+\reviewem{表示結果 (Re:VIEW)}
+
+\starterresult
+\begin{starterterminal}\seqsplit{\textdollar{} printf "Hi\reviewbackslash{}n"         \# コメントの前に半角空白
+\textdollar{} printf "Hi\reviewbackslash{}n"            \# コメントの前にタブ文字}\end{starterterminal}
+\endstarterresult
+
+Starterではこの不具合を修正し、タブ文字がある行でも表示が崩れないようにしました。
+
+\noindent
+\reviewem{表示結果 (Starter)}
+
+\starterresult
+\begin{starterterminal}\seqsplit{\textdollar{} printf "Hi\reviewbackslash{}n"         \# コメントの前に半角空白
+\textdollar{} printf "Hi\reviewbackslash{}n"         \# コメントの前に半角空白}\end{starterterminal}
+\endstarterresult
+
+ただし、タブ文字のある行に「\texttt{@\textless{}b\textgreater{}\{\}}」や「\texttt{@\textless{}del\textgreater{}\{\}}」があると、タブ文字を半角空白に正しく展開できません。これは技術的に修正しようがないので、ソースコードではタブ文字より半角空白を使うようにしてください。
+
+\subsection{コラム中のソースコードがページまたぎしてくれないよ？}
+\label{sec:2-4-2}
+
+仕様です。
+ブロックと違い、コラム（「\texttt{==[column]} ... \texttt{==[/column]}」）の中にはブロックを入れられますが、たとえばソースコードを入れた場合、ページをまたぐことができません。
+これは\LaTeX{}のframed環境による制限です。
+
+\subsection{ソースコードを別ファイルから読み込む方法はないの？}
+\label{sec:2-4-3}
+
+\url{https://github.com/kmuto/review/issues/887}によると、このような方法でできるようです。
+
+\startercodeblockcaption{別ファイルのソースコード(source/fib1.rb)を読み込む方法}
+\label{}
+\begin{starterprogram}\seqsplit{\texttt{//}list[fib1][フィボナッチ数列]\{
+\texttt{@}\textless{}include\textgreater{}\{source/fib1.rb\}
+\texttt{//}\}}\end{starterprogram}
+
+ただし先のリンクにあるように、この方法はundocumentedであり、将来も機能が提供されるかは不明です。
+「直近の締切りに間に合えばよい」「バージョンアップはしない」という場合のみ、割り切って使いましょう。
+もし使えなくなったとしても、開発チームに苦情を申し立てないようお願いします。
+
+\section{コンパイル}
+\label{sec:2-5}
+
+\subsection{なんで\LaTeX{}のコンパイルがいつも3回実行されるの？}
+\label{sec:2-5-1}
+
+Re:VIEWの仕様です。
+\LaTeX{}のコンパイル中にページ番号が変わってしまうと、古いページ番号のままPDFが生成されてしまいます。
+このような事態を防ぐために、3回コンパイルしているのだと思われます\footnote{本当ならコンパイルの前後でauxファイルを比較して、ページ番号に差異があればもう一度コンパイルする、という方法が望ましいですが、そこまではしていないようです。}。
+
+なお\LaTeX{}のコンパイルには1秒程度しかかからないはずです。
+3回繰り返しても、5秒未満でしょう。
+時間がかかるのはそのあとのPDFへの変換であり、これは画像のサイズやファイル数に比例して時間がかかります。
+
+\subsection{コンパイルに時間かかりすぎ。もっと速くできない？}
+\label{sec:2-5-2}
+
+前の節で説明したように、時間がかかるのは\LaTeX{}のコンパイルではなく、そのあとのPDF生成です。
+そしてPDF生成は、画像のサイズやファイル数に比例して時間がかかります。
+
+画像のファイル数は減らせないので、かわりに画像のサイズを減らしたり、執筆中だけダミー画像で置き換えるのがいいでしょう。
+詳しくは『ワンストップ！技術同人誌を書こう』という本の第8章を参照してください。
+
+または、\reviewem{config.yml}の「\texttt{dvioptions:}」の値を調整してください。
+「\texttt{{-}z 1}」だと圧縮率は低いけど速くなり、「\texttt{{-}z 9}」だと圧縮率は高いけど遅くなります。
+
+\section{タイトルページ（大扉）}
+\label{sec:2-6}
+
+\subsection{タイトルが長いので、指定した箇所で改行したいんだけど？}
+\label{sec:2-6-1}
+
+長いタイトルをつけると、タイトルページ（「大扉」といいます）でタイトルが変な箇所で改行されてしまいます。
+
+表示例：
+
+\begin{center}
+  \gtfamily\sffamily\bfseries\ebseries\Huge
+  週末なにしてますか?
+  忙しいですか?
+  金魚すくってもらっていいですか?
+\end{center}
+\bigskip
+
+この問題に対処するために、Starterではタイトル名に改行を含められるようになっています。
+\reviewem{config.yml}の「\texttt{booktitle: \textbar{}{-}}」という箇所\footnote{「\texttt{\textbar{}{-}}」は、YAMLにおいて複数行を記述する記法の1つ（最後の行の改行は捨てられる）。}に、タイトル名を複数行で指定してください。
+
+\startercodeblockcaption{サンプル}
+\label{}
+\begin{starterprogram}\seqsplit{booktitle: \textbar{}{-}
+  週末なにしてますか?
+  忙しいですか?
+  金魚すくってもらっていいですか?}\end{starterprogram}
+
+こうすると、タイトルページでも複数行のまま表示されます。
+
+表示例：
+
+\begin{center}
+  \gtfamily\sffamily\bfseries\ebseries\Huge
+  週末なにしてますか?\\
+  忙しいですか?\\
+  金魚すくってもらっていいですか?\par
+\end{center}
+\bigskip
+
+同様に、サブタイトルも複数行で指定できます。
+
+ただし本の最後のページにある「奥付」では、タイトルもサブタイトルも改行されずに表示されます。
+
+Starterではなく、素のRe:VIEWやTechboosterのテンプレートを使っている場合は、\reviewem{layouts/layout.tex.erb}を変更します。
+変更するまえに、\reviewem{layouts/layout.tex.erb}のバックアップをとっておくといいでしょう。
+
+\startercodeblockcaption{layouts/layout.tex.erb}
+\label{}
+\begin{starterprogram}\seqsplit{....(省略)....
+\reviewbackslash{}thispagestyle\{empty\}
+\reviewbackslash{}begin\{center\}\%
+  \reviewbackslash{}mbox\{\} \reviewbackslash{}vskip5zw
+   \reviewbackslash{}reviewtitlefont\%
+    {\reviewstrike{\seqsplit{\{\reviewbackslash{}HUGE\reviewbackslash{}bfseries \textless{}\%= escape\textunderscore{}latex(@config.name\textunderscore{}of("booktitle")) \%\textgreater{} \reviewbackslash{}par\}\%}}}
+    \bfseries{}\{\reviewbackslash{}HUGE\reviewbackslash{}bfseries 週末なにしてますか?\reviewbackslash{}newline\%\mdseries{}
+    \bfseries{}                忙しいですか?\reviewbackslash{}newline\%\mdseries{}
+    \bfseries{}                金魚すくってもらっていいですか?\reviewbackslash{}par\}\%\mdseries{}
+....(省略)....}\end{starterprogram}
+
+\subsection{タイトルぺージがださい。もっとかっこよくならない？}
+\label{sec:2-6-2}
+
+\LaTeX{}を使ってるかぎりは難しいでしょう。
+それよりもPhotoshopやKeynoteを使ってタイトルページを作るほうが簡単です（\reviewimageref{2.1}{image:chap02-faq:titlepage-samples}）。
+
+\begin{reviewimage}%%titlepage-samples
+\includegraphics[width=\maxwidth]{./images/chap02-faq/titlepage-samples.png}%
+\reviewimagecaption{Keynoteを使って作成したタイトルページの例}
+\label{image:chap02-faq:titlepage-samples}
+\end{reviewimage}
+
+タイトルページをPhotoshopやKeynoteで作る場合は、\reviewem{config.yml}で「\texttt{titlepage: false}」を指定し、タイトルページを生成しないようにしましょう。
+そのあと、別途作成したタイトルページのPDFファイルと「\reviewem{rake pdf}」で生成されたPDFファイルとを結合してください。
+
+なお奥付もPhotoshopやKeynoteで作る場合は、\reviewem{config.yml}に「\texttt{colophon: false}」を指定し、奥付を生成しないようにしてください。
+また\reviewem{config.yml}には「\texttt{colophon:}」の設定箇所が2箇所あるので、ファイルの下のほうにある該当箇所を変更してください。
+
+\section{その他}
+\label{sec:2-7}
+
+\subsection{設定ファイルをいじったら、動かなくなった！}
+\label{sec:2-7-1}
+
+Re:VIEWの設定ファイルである\reviewem{config.yml}や\reviewem{catalog.yml}は、「YAML」というフォーマットで記述されています。
+このフォーマットに違反すると、設定ファイルが読み込めなくなるため、エラーになります。
+
+「YAML」のフォーマットについての詳細はGoogle検索してください。
+ありがちなミスを以下に挙げておきます。
+
+\begin{itemize}
+\item タブ文字を使うと、エラーになります。かわりに半角スペースを使ってください。
+\item 全角スペースを使うと、エラーになります。かわりに半角スペースを使ってください。
+\item 「\texttt{:}」のあとに半角スペースが必要です。たとえば\\
+「\texttt{titlepage:false}」はダメです。\\
+「\texttt{titlepage: false}」のように書いてください。
+\item 「\texttt{,}」のあとに半角スペースが必要です。たとえば\\
+「\texttt{texstyle: [reviewmacro,starter,mystyle]}」はダメです。\\
+「\texttt{texstyle: [reviewmacro, starter, mystyle]}」のように書いてください。
+\item インデントが揃ってないと、エラーになります。
+   たとえば\reviewem{catalog.yml}が次のようになっていると、インデントが揃ってないのでエラーになります。
+\end{itemize}
+
+\startercodeblockcaption{「CHAPS:」のインデントが揃ってないのでエラー}
+\label{}
+\begin{starterprogram}\seqsplit{PREDEF:
+  {-} chap00{-}preface.re
+
+CHAPS:
+   {-} chap01{-}starter.re
+  {-} chap02{-}faq.re
+
+APPENDIX:
+
+POSTDEF:
+  {-} chap99{-}postscript.re}\end{starterprogram}
+
+\begin{itemize}
+\item 「\reviewem{{-}}」のあとに半角スペースが必要です。たとえば上の例で\\
+「\texttt{{-} chap01{-}starter.re}」が\\
+「\texttt{{-}chap01{-}starter.re}」となっていると、エラーになります。
+\end{itemize}
+
+\subsection{印刷用とタブレット用で設定を少し変えるにはどうするの？}
+\label{sec:2-7-2}
+
+Re:VIEWにはそのような機能がありませんので、自力で頑張る必要があります。
+
+方針としては、設定ファイルやスタイルファイルを用途に応じて都度生成するといいでしょう。
+具体的には次のようにします。
+
+\vspace*{\baselineskip}
+\noindent
+(1) まず少し変えたいファイルの名前を変更し、末尾に「\reviewem{.eruby}」をつけます。
+
+\begin{starterterminal}\seqsplit{\textdollar{} mv config.yml         config.yml.eruby
+\textdollar{} mv sty/mytextsize.sty sty/mytextsize.sty.eruby
+\textdollar{} mv sty/starter.sty    sty/starter.sty.eruby
+\#\# またはこうでもよい
+\textdollar{} mv config.yml\{,.eruby\}
+\textdollar{} mv sty/mytextsize.sty\{,.eruby\}
+\textdollar{} mv sty/starter.sty\{,.eruby\}}\end{starterterminal}
+\noindent
+(2) 次に、それらのファイルに次のような条件分岐を埋め込みます。
+
+\startercodeblockcaption{config.yml.eruby}
+\begin{starterprogram}\seqsplit{....(省略)....
+\bfseries{}\textless{}\% if buildmode == 'printing'   \# 印刷向け \%\textgreater{}\mdseries{}
+texdocumentclass: ["jsbook", "uplatex,papersize,twoside,b5j,10pt,openright"]
+\bfseries{}\textless{}\% elsif buildmode == 'tablet'  \# タブレット向け \%\textgreater{}\mdseries{}
+texdocumentclass: ["jsbook", "uplatex,papersize,oneside,a5j,10pt,openany"]
+\bfseries{}\textless{}\% else abort "error: buildmode=\#\{buildmode.inspect\}" \%\textgreater{}\mdseries{}
+\bfseries{}\textless{}\% end \%\textgreater{}\mdseries{}
+....(省略)....
+\bfseries{}\textless{}\% if buildmode == 'printing'   \# 印刷向け \%\textgreater{}\mdseries{}
+dvioptions: "{-}d 5 {-}z 3"  \# 速度優先
+\bfseries{}\textless{}\% elsif buildmode == 'tablet'  \# タブレット向け \%\textgreater{}\mdseries{}
+dvioptions: "{-}d 5 {-}z 9"  \# 圧縮率優先
+\bfseries{}\textless{}\% else abort "error: buildmode=\#\{buildmode.inspect\}" \%\textgreater{}\mdseries{}
+\bfseries{}\textless{}\% end \%\textgreater{}\mdseries{}
+....(省略)....}\end{starterprogram}
+\startercodeblockcaption{sty/mytextsize.sty.eruby}
+\begin{starterprogram}\seqsplit{\bfseries{}\textless{}\%\mdseries{}
+\bfseries{}if buildmode == 'printing'   \# 印刷向け\mdseries{}
+\bfseries{}  textwidth  = '42zw'\mdseries{}
+\bfseries{}  sidemargin = '1zw'\mdseries{}
+\bfseries{}elsif buildmode == 'tablet'  \# タブレット向け\mdseries{}
+\bfseries{}  textwidth  = '40zw'\mdseries{}
+\bfseries{}  sidemargin = '0zw'\mdseries{}
+\bfseries{}else abort "error: buildmode=\#\{buildmode.inspect\}"\mdseries{}
+\bfseries{}end\mdseries{}
+\bfseries{}\%\textgreater{}\mdseries{}
+....(省略)....
+\reviewbackslash{}setlength\{\reviewbackslash{}textwidth\}\{\bfseries{}\textless{}\%= textwidth \%\textgreater{}\mdseries{}\}
+....(省略)....
+\reviewbackslash{}addtolength\{\reviewbackslash{}oddsidemargin\}\{\bfseries{}\textless{}\%= sidemargin \%\textgreater{}\mdseries{}\}
+\reviewbackslash{}addtolength\{\reviewbackslash{}evensidemargin\}\{{-}\bfseries{}\textless{}\%= sidemargin \%\textgreater{}\mdseries{}\}
+....(省略)....}\end{starterprogram}
+\startercodeblockcaption{sty/starter.sty.eruby}
+\begin{starterprogram}\seqsplit{....(省略)....
+\bfseries{}\textless{}\% if buildmode == 'printing'   \# 印刷向け \%\textgreater{}\mdseries{}
+\reviewbackslash{}definecolor\{starter@chaptercolor\}\{gray\}\{0.40\}  \% 0.0: black, 1.0: white
+\reviewbackslash{}definecolor\{starter@sectioncolor\}\{gray\}\{0.40\}
+\reviewbackslash{}definecolor\{starter@captioncolor\}\{gray\}\{0.40\}
+\reviewbackslash{}definecolor\{starter@quotecolor\}\{gray\}\{0.40\}
+\bfseries{}\textless{}\% elsif buildmode == 'tablet'  \# タブレット向け \%\textgreater{}\mdseries{}
+\reviewbackslash{}definecolor\{starter@chaptercolor\}\{HTML\}\{20B2AA\} \% lightseagreen
+\reviewbackslash{}definecolor\{starter@sectioncolor\}\{HTML\}\{20B2AA\} \% lightseagreen
+\reviewbackslash{}definecolor\{starter@captioncolor\}\{HTML\}\{FFA500\} \% orange
+\reviewbackslash{}definecolor\{starter@quotecolor\}\{HTML\}\{E6E6FA\}   \% lavender
+\bfseries{}\textless{}\% else abort "error: buildmode=\#\{buildmode.inspect\}" \%\textgreater{}\mdseries{}
+\bfseries{}\textless{}\% end \%\textgreater{}\mdseries{}
+....(省略)....
+\bfseries{}\textless{}\% if buildmode == 'printing'   \# 印刷向け \%\textgreater{}\mdseries{}
+\reviewbackslash{}hypersetup\{colorlinks=true,linkcolor=black\} \% 黒
+\bfseries{}\textless{}\% elsif buildmode == 'tablet'  \# タブレット向け \%\textgreater{}\mdseries{}
+\reviewbackslash{}hypersetup\{colorlinks=true,linkcolor=blue\}  \% 青
+\bfseries{}\textless{}\% else abort "error: buildmode=\#\{buildmode.inspect\}" \%\textgreater{}\mdseries{}
+\bfseries{}\textless{}\% end \%\textgreater{}\mdseries{}}\end{starterprogram}
+\noindent
+(3) ファイルを生成するRakeタスクを定義します。
+ここまでが準備です。
+
+\startercodeblockcaption{lib/tasks/mytasks.rake}
+\begin{starterprogram}\seqsplit{def render\textunderscore{}eruby\textunderscore{}files(param)   \# 要 Ruby \textgreater{}= 2.2
+  Dir.glob('**/*.eruby').each do \textbar{}erubyfile\textbar{}
+    origfile = erubyfile.sub(/\reviewbackslash{}.eruby\textdollar{}/, '')
+    sh "erb {-}T 2 '\#\{param\}' \#\{erubyfile\} \textgreater{} \#\{origfile\}"
+  end
+end
+
+
+namespace :setup do
+
+  desc "*印刷用に設定 (B5, 10pt, mono)"
+  task :printing do
+    render\textunderscore{}eruby\textunderscore{}files('buildmode=printing')
+  end
+
+  desc "*タブレット用に設定 (A5, 10pt, color)"
+  task :tablet do
+    render\textunderscore{}eruby\textunderscore{}files('buildmode=tablet')
+  end
+
+end}\end{starterprogram}
+\noindent
+(4)「\reviewem{rake setup::printing}」または「\reviewem{rake setup::tablet}」を実行します。
+すると、\reviewem{config.yml}と\reviewem{sty/mytextsize.sty}と\reviewem{sty/starter.sty}が生成されます。
+そのあとで「\reviewem{rake pdf}」を実行すれば、用途に応じたPDFが生成されます。
+
+\begin{starterterminal}\seqsplit{\textdollar{} \bfseries{}rake setup::printing  \# 印刷用\mdseries{}
+\textdollar{} rake pdf
+\textdollar{} mv mybook.pdf mybook\textunderscore{}printing.pdf
+
+\textdollar{} \bfseries{}rake setup::tablet    \# タブレット用\mdseries{}
+\textdollar{} rake pdf
+\textdollar{} mv mybook.pdf mybook\textunderscore{}tablet.pdf}\end{starterterminal}
