@@ -1,288 +1,208 @@
-
-= LINE Pay API を使って決済に対応したBot を開発する
-
+# LINE Pay API を使って決済に対応したBot を開発する
 
 最近は『○○Pay』 がたくさん登場し、いよいよキャッシュレス決済時代が到来しそうな勢いです。
 
-
-
 キャッシュレス決済が一般に認知され、決済のAPI が公開されているのであれば、我々個人開発者も自分のサービスに決済機能を付けて、一儲けとまでは行かなくても運用費＋お小遣いくらいは稼げるのではないか、ということでAPI が公開されているLINE Pay API を個人開発のLINE Bot に組み込んでみました。
 
-
-== どんなBot か？
-
+## どんなBot か？
 
 地元で子ども向けのプログラミング教室を個人運営しています。
-
-
 
 単発のイベントの場合、受付で当日の参加費を頂くのですが、個人で運営しているので受付と参加費の受け取りとお釣りを返す作業が非常に面倒です。
 参加費も大体が500円／回とワンコインということもあり1000円札で支払いされる方も多く、事前にお釣りを用意しておくことも地味に面倒です…
 
-
-
 また、参加者の保護者も未就学児の小さなお子さんを連れているケースも多いのでお釣りをもらうのも手間であったりしますし、中にはお釣りが出ないようにと硬貨を事前準備される方も多いので、その負担もあります。
 
-
-
 そんなところから、参加者にキャッシュレス決済してもらえれば、先方も現金を用意する手間が省け、運営側も参加登録と現金授受がスムーズに出来ると考え、イベントの受付や小規模な物販などで利用できるBot を開発しています。
-
-
 
 今回は小規模な物販をイメージしたBot をサンプル実装してみました。
 イベントの参加者管理＆決済であれば、商品の代わりに参加者と参加費を登録すれば対応できる思います。
 
-
-
 なお、今回記事に掲載する内容はLINE Pay API を使った実装の解説を主眼にしたサンプル実装です。
 実際のサービスとしてリリースするには、商品の在庫管理や認証や認可などに関する考慮・実装が必要となりますので、ご承知おきください。
 
-
-=== Bot を利用した決済までの流れ
-
+### Bot を利用した決済までの流れ
 
 ストア運営者と購入者（LINE Pay で決済する人）で同じBot を使います。（ストア運営者と購入者では使える機能が異なる）
 
- 1. ストア運営者がBot で販売する商品や参加者を選択する
- 1. ストア運営者のBot に商品に応じたQRコードを表示する
- 1. 購入者はBotのリッチメニューから、ストア運営者のQRコードリーダーを起動して、QRコードを読み込む
- 1. LINE Pay 決済画面で内容を確認して決済を実行する
+1. ストア運営者がBot で販売する商品や参加者を選択する
+2. ストア運営者のBot に商品に応じたQRコードを表示する
+3. 購入者はBotのリッチメニューから、ストア運営者のQRコードリーダーを起動して、QRコードを読み込む
+4. LINE Pay 決済画面で内容を確認して決済を実行する
 
-
-== LINE Pay 導入までの流れ
-
+## LINE Pay 導入までの流れ
 
 LINE Pay を導入するための作業は以下のとおりです。
 
- 1. 加盟店申請
- 1. LINE Pay Sandbox での開発
- 1. 本番設定＆リリース
-
-
+1. 加盟店申請
+2. LINE Pay Sandbox での開発
+3. 本番設定＆リリース
 
 今回は、これらのうち「1. 加盟店申請」と「2. LINE Pay Sandbox での開発」を中心に説明します。
 
+### LINE Pay の加盟店申請
 
-=== LINE Pay の加盟店申請
-
-==== 個人でも加盟店申請できる
-
+#### 個人でも加盟店申請できる
 
 LINE Pay の加盟店になるには法人でなくとも大丈夫です。個人で加盟店申請するには、個人事業主として開業届を出して青色申告をしてあればOKです。
 LINE Pay 公式の「よくある質問」にも、個人事業主でも加入できると書いてあります。
 
-
-
-@<href>{https://pay.line.me/jp/intro/faq?locale=ja_JP&sequences=14,個人事業主も加入できますか？：よくある質問＠LINE Pay}
-
-
+[個人事業主も加入できますか？：よくある質問＠LINE Pay](https://pay.line.me/jp/intro/faq?locale=ja_JP&sequences=14)
 
 加盟店申請とは関係ないですが、青色申告をしていれば、していない場合（白色申告）に比べて所得の控除額が大きく、減価償却の特例が受けられる（30万円未満の固定資産を一括償却できる。上限あり）など税金面での優遇がありますので、副業などをしている方は青色申告しておくのをお勧めします。
 
-
-==== 青色申告するには
-
+#### 青色申告するには
 
 本記事はIT技術記事なので細かいことは書きませんが、開業届と青色申告承認申請書のフォーマットに沿って記載して、所管の税務署に提出するだけです。
 申告書類を簡単に作成できるサービスもたくさんあるので、検索してみてください。
 
-
-==== LINE Pay 加盟店申請に必要な書類など
-
+#### LINE Pay 加盟店申請に必要な書類など
 
 いよいよLINE Pay 加盟店申請ですが、個人で申請する際に必要な書類などがあるので揃えておきましょう。
 
- * 開業届または確定申告書の控え
- * 本人確認書類（運転免許証など）
- ** 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください。
- * Web サイト
-
-
+- 開業届または確定申告書の控え
+- 本人確認書類（運転免許証など）
+  - 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください。
+- Web サイト
 
 特別なものはありませんね。それではいよいよ加盟店申請です。
 
+![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/01_LINEPayAppForMenber.png)
+
+[LINE Pay 加盟店申請ページ](https://pay.line.me/jp/intro?locale=ja_JP)ページ（リンク先の右上赤枠部分）にアクセスしてください。
 
 
-//image[01_LINEPayAppForMenber][LINE Pay 加盟店申請ページ]{
-//}
-
-
-
-
-@<href>{https://pay.line.me/jp/intro?locale=ja_JP,LINE Pay 加盟店申請ページ}ページ（リンク先の右上赤枠部分）にアクセスしてください。
-
-
-==== 加盟店申請
-
+#### 加盟店申請
 
 個人でLINE Pay API を使う加盟店申請を行うのであれば、申請画面で以下のように選択して申請を進めます。
 
- * 事業種別：個人事業主
- * 支払い方法：オンライン
+- 事業種別：個人事業主
+- 支払い方法：オンライン
 
-
-
-//image[02_LINEPayAppForMember][LINE Pay 加盟店申請]{
-//}
-
-
-
+![LINE Pay 加盟店申請](images/chapxx-sumihiro3/02_LINEPayAppForMember.png)
 
 あとは、規約を読んで同意し、必要書類をスキャンしてPDF 形式などにして、スキャンしたファイルを申請ページから必要事項の記入とともにアップロードするだけです。
 
-
-==== 審査と登録完了通知
-
+#### 審査と登録完了通知
 
 申請書類の不備などが二度ありましたが、約2週間で審査完了しました。審査がスムーズなのも時間がない個人としては嬉しいところです。
 
-
-
 審査が完了すると、下のようなメールが届きます。
-//image[03_ReviewCompleted][加盟店審査完了メール]{
-//}
+![加盟店審査完了メール](images/chapxx-sumihiro3/03_ReviewCompleted.png)
 
 
 
-== LINE Pay APIを使った決済の流れ
+## LINE Pay APIを使った決済の流れ
 
+3つの登場人物が存在します。一つ目は **サービスプロバイダー** です。これは有償で商品またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。二つ目は その商品またはサービスを購入する **ユーザー** です。そして三つ目は **LINE Pay**です。サービスプロバイダーはLINE PayのAPIに、ユーザーはLINE Payのアプリにアクセスして下記の流れで決済をおこなうことになります。
 
-3つの登場人物が存在します。一つ目は @<strong>{サービスプロバイダー} です。これは有償で商品またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。二つ目は その商品またはサービスを購入する @<strong>{ユーザー} です。そして三つ目は @<strong>{LINE Pay}です。サービスプロバイダーはLINE PayのAPIに、ユーザーはLINE Payのアプリにアクセスして下記の流れで決済をおこなうことになります。
-
-
-
-//image[04_LINEPayAPIOverview][LINE Pay API 概要図]{
-//}
-
+![LINE Pay API 概要図](images/chapxx-sumihiro3/04_LINEPayAPIOverview.png)
 - SP = サービスプロバイダー
 
 
-==== 決済予約
 
+#### 決済予約
 
 サービスプロバイダーは商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得します。
 
-
-==== ユーザーによる承認
-
+#### ユーザーによる承認
 
 取得した決済URLをユーザーに提供し、ユーザーが決済URLに進みます。LINE Payが起動して商品と金額が表示され、ユーザーはその情報を確認の上、決済承認をおこないます。
 
-
-==== 決済実行
-
+#### 決済実行
 
 ユーザーが承認すると、任意のURLへのリダイレクトまたは任意のURLへのPOSTリクエストにてサービスプロバイダーに通知されます。その時点で決済を実行できる状態となっていますので、あとは決済実行のAPI（Confirm API）にアクセスすれば決済完了となります。
 
 
-=== システム構成
 
+### システム構成
 
 ここまでは事務的な作業でしたが、ココから本筋の開発に関する内容です。
 
-
-
 まずはシステム構成から。
 
+#### サーバー
 
-==== サーバー
- * heroku
- ** Docker
- ** Python
- *** Flask
- *** SQL Alchemy
- *** Requests
- ** Heroku Postgres
- *** heroku のアドオン。無料枠あり
- ** QuotaGuard Static
- *** heroku のアドオン。無料枠あり
- *** 固定IPで外部アクセスするためのプロキシ
- **** LINE Pay API アクセス時に固定IPアドレスが必要なため
- **** LINE Pay API Sandbox 環境では不要
- * LINE Messaging API
- ** LINE Messaging API 用SDK
- *** @<href>{https://github.com/line/line-bot-sdk-python,line-bot-sdk-python}
- * LINE Pay API
- ** @<href>{https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP,Sandbox 環境}
-
-
-==== フロント
- * Vue.js
- ** Vuetify
- *** Vue.js でマテリアルデザインのコンポーネントを簡単に使えるコンポーネントフレームワーク
- ** vue-qriously
- *** Vue.js でQRコードを表示するライブラリ
+- heroku
+    - Docker
+    - Python
+        - Flask
+        - SQL Alchemy 
+        - Requests
+    - Heroku Postgres
+        - heroku のアドオン。無料枠あり
+    - QuotaGuard Static
+        - heroku のアドオン。無料枠あり
+        - 固定IPで外部アクセスするためのプロキシ
+            - LINE Pay API アクセス時に固定IPアドレスが必要なため
+            - LINE Pay API Sandbox 環境では不要
+- LINE Messaging API
+    - LINE Messaging API 用SDK
+        - [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
+- LINE Pay API
+    - [Sandbox 環境](https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP)
 
 
-=== LINE Pay Sandboxの申請と設定
+#### フロント
 
+- Vue.js
+    - Vuetify
+        - Vue.js でマテリアルデザインのコンポーネントを簡単に使えるコンポーネントフレームワーク
+    - vue-qriously
+        - Vue.js でQRコードを表示するライブラリ
+
+### LINE Pay Sandboxの申請と設定
 
 実際に決済するには加盟店登録が必要ですが、開発して動作を確認するフェーズであればSandboxが利用できます。こちらは下記のURLから申請すると払い出されるLINE Pay API用のアカウントで、誰でもすぐに利用できます。
 
-
-
 https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP
 
-
-
 アカウントが払い出されたらLINE Payコンソールの決済連動管理 > 連動キー管理からChannel IDとChannel Secret Keyを確認します。これらの値はLINE PayのAPIコールに必要になります。
-//image[05_LinkKey][連動キー管理]{
-//}
+![連動キー管理](images/chapxx-sumihiro3/05_LinkKey.png)
 
 
+### 開発
 
-=== 開発
+#### サーバー（heroku）の準備
 
-==== サーバー（heroku）の準備
+##### heroku CLI のインストール
 
-===== heroku CLI のインストール
-
-
-@<href>{https://jp.heroku.com/,heroku} に登録し、ターミナルなどのCLI から操作できるheroku CLI をインストールします。
+[heroku](https://jp.heroku.com/) に登録し、ターミナルなどのCLI から操作できるheroku CLI をインストールします。
 Mac で開発する場合はbrew を使ってインストールできます。
 
-
-//emlist[][bash]{
+```bash
 $ brew tap heroku/brew && brew install heroku
-//}
+```
 
-===== アプリケーションの作成
-
+##### アプリケーションの作成
 
 ここからheroku CLI を使ってアプリケーションの登録などをしていきます。
 
-
-
 まずはログイン。ログインコマンドを入力すると、ブラウザでheroku のログインページが表示されるのでこちらからログインします。
 
-
-//emlist[][bash]{
+```bash
 $ heroku login
 heroku: Press any key to open up the browser to login or q to exit: 
 Opening browser to https://cli-auth.heroku.com/auth/browser/xxxxxxxxx
 Logging in... done
 Logged in as xxxx@xxxx.com
-//}
-
+```
 
 続けてアプリケーションを作成します。
 
- * YOUR@<b>{APP}NAME にはheroku 全体で一意となるアプリケーション名を指定します。
+- YOUR_APP_NAME にはheroku 全体で一意となるアプリケーション名を指定します。
 
-
-//emlist[][bash]{
+```bash
 $ heroku create {YOUR_APP_NAME}
 Creating ⬢ {YOUR_APP_NAME}... done
 https://{YOUR_APP_NAME}.herokuapp.com/ | https://git.heroku.com/{YOUR_APP_NAME}.git
-//}
+```
 
-===== データベースの登録
-
+##### データベースの登録
 
 heroku CLI で登録します。
 
-
-//emlist[][bash]{
+```bash
 $ heroku addons:create heroku-postgresql:hobby-dev -a {YOUR_APP_NAME}
 Creating heroku-postgresql:hobby-dev on ⬢ {YOUR_APP_NAME}... free
 Database has been created and is available
@@ -290,46 +210,43 @@ Database has been created and is available
  ! data from another database with pg:copy
 Created postgresql-reticulated-xxxxx as DATABASE_URL
 Use heroku addons:docs heroku-postgresql to view documentation
-//}
+```
 
-===== 固定IPでのアクセス用プロキシの登録
 
+
+##### 固定IPでのアクセス用プロキシの登録
 
 heroku CLI で登録します。
 
-
-//emlist[][bash]{
+```bash
 $ heroku addons:create quotaguardstatic:starter -a {YOUR_APP_NAME}
 Creating quotaguardstatic:starter on ⬢ {YOUR_APP_NAME}... free
 Your static IPs are [xx.xxx.xx.xx, xxx.xxx.xxx.xxx]
 Created quotaguardstatic-clean-xxxxx as QUOTAGUARDSTATIC_URL
 Use heroku addons:docs quotaguardstatic to view documentation
-//}
-
+```
 
 環境変数「QUOTAGUARDSTATIC_URL」にプロキシの設定が自動で設定されます。
 
 
-==== コンテナの準備
-
+#### コンテナの準備
 
 今回はheroku にはDocker を使ってコンテナでデプロイします。こちらの記事を参考にさせていただきました。
 
- * @<href>{https://qiita.com/nanakenashi/items/d3572989d76a651262b5,FlaskアプリケーションをHeroku上のDockerで起動}
- * @<href>{https://qiita.com/sho7650/items/9654377a8fc2d4db236d,Heroku で Docker を使う場合の諸注意}
+- [FlaskアプリケーションをHeroku上のDockerで起動](https://qiita.com/nanakenashi/items/d3572989d76a651262b5)
+- [Heroku で Docker を使う場合の諸注意](https://qiita.com/sho7650/items/9654377a8fc2d4db236d)
 
 
-===== Dockerfile
 
+##### Dockerfile
 
 コンテナのビルド時に以下のことをやっています。
 
- * Python からPostgreSQL を使うために関連のモジュールをインストール
- * 「requirements.txt」に記載したPython プログラムで使うライブラリをインストール
- * プログラムのコードもコンテナ内にコピー
+- Python からPostgreSQL を使うために関連のモジュールをインストール
+- 「requirements.txt」に記載したPython プログラムで使うライブラリをインストール
+- プログラムのコードもコンテナ内にコピー
 
-
-//emlist{
+```
 FROM python:3.6-alpine
 
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
@@ -348,23 +265,17 @@ WORKDIR /app
 # Run the app.  CMD is required to run on Heroku
 ENV FLASK_APP /app/main.py
 CMD flask run -h 0.0.0.0 -p $PORT
-//}
+```
 
-===== requirements.txt
-
+##### requirements.txt
 
 Python プログラムで使うライブラリはrequirements.txt に定義します。
 
-
-
 データベース（PostgreSQL）へのアクセス用に「psycopg2」、ORマッパーとして「SQLAlchemy」を使っています。
-
-
 
 LINE Pay API への接続には「requests」を利用します。
 
-
-//emlist{
+```
 flask
 SQLAlchemy
 flask_sqlalchemy
@@ -372,53 +283,41 @@ Jinja2
 psycopg2
 requests
 line-bot-sdk
-//}
+```
 
-==== ストア運営者が利用する機能・画面
-
+#### ストア運営者が利用する機能・画面
 
 ストア運営者が利用する商品選択〜決済用QRコード表示〜決済確認の画面・機能です。簡単に言うと店舗にあるレジの役割です。
 
-
-===== 商品選択画面
-
+##### 商品選択画面
 
 ストア運営者が操作する商品選択画面です。
 
-
-
 商品選択画面はVue.js で作成しています。今回の解説では画面数も少ないのでコンポーネント化はせずに、HTMLベースで作っています。また、この画面をLIFF として登録しておきます。
-
-
 
 この画面で出来ることは以下のとおりです。
 
- * 商品一覧を表示して選択する
- * 注文登録後は購入者が読み取るQRコード（後述する決済開始画面のLIFF URL＋注文番号）を表示する
- * 購入者が決済完了したかを確認する（追加実装予定）
+- 商品一覧を表示して選択する
+- 注文登録後は購入者が読み取るQRコード（後述する決済開始画面のLIFF URL＋注文番号）を表示する
+- 購入者が決済完了したかを確認する（追加実装予定）
 
-
-====== 画面表示
-
+###### 画面表示
 
 ここではFlask のテンプレートエンジン（Jinja2）で商品選択画面のHTML ファイル（purchase_order.html）を返します。
 
-
-//emlist[][python]{
+```python
 @app.route('/purchase_order', methods=['GET'])
 def get_purchase_order():
     return render_template(
         'purchase_order.html'
     )
-//}
+```
 
-====== HTML（purchase_order.html）
-
+###### HTML（purchase_order.html）
 
 QRコードの表示には、Vue.js 用のQRコード関連ライブラリ「vue-qriously」を使っています。とても簡単にQRコードを表示できるので色んな場面で使えそうです。
 
-
-//emlist[][html]{
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -579,15 +478,13 @@ QRコードの表示には、Vue.js 用のQRコード関連ライブラリ「vue
     <script src="{{ url_for('static', filename='vue-qriously.js') }}"></script>
 </body>
 </html>
-//}
+```
 
-====== JavaScript（purchase_order.js）
-
+###### JavaScript（purchase_order.js）
 
 axios を使ってサーバーサイドのAPIの実行したり、商品選択用トグル機能を提供したりしています。
 
-
-//emlist[][javascript]{
+```javascript
   async getItems() {
       // 商品取得
       this.api_loading = true
@@ -643,23 +540,18 @@ axios を使ってサーバーサイドのAPIの実行したり、商品選択�
       this.payment_transaction_done = false
 },
 
-//}
+```
+
+ちなみに、LIFF 開発でデバッグなどに利用できる便利なツール「vConsole」があります。導入方法などは[こちら](https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb)の記事を参照してください。
 
 
-ちなみに、LIFF 開発でデバッグなどに利用できる便利なツール「vConsole」があります。導入方法などは@<href>{https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb,こちら}の記事を参照してください。
-
-
-===== 商品情報取得API
-
+##### 商品情報取得API
 
 テンプレートだけでは商品情報を表示できないので、別途商品情報をフロントから取得するAPIを設けます。
 
-
-
 SQLAlchemy を使ってデータベースから商品情報を取得して返しています。
 
-
-//emlist[][python]{
+```python
 @app.route('/api/items', methods=['GET'])
 def get_items():
     item_list = Item.query.filter(Item.active == True).all()
@@ -678,19 +570,17 @@ def get_items():
     return jsonify({
         'items': items
     })
-//}
+```
 
-===== 注文受付API
 
+
+##### 注文受付API
 
 商品選択画面で選択された商品を基に注文情報を生成してデータベースに登録します。
 
-
-
 なお、LINE Pay での決済では注文IDが重複不可のため、一意なIDを生成しておく必要があります。
 
-
-//emlist[][python]{
+```python
 @app.route('/api/purchase_order', methods=['POST'])
 def post_purchase_order():
     request_dict = request.json
@@ -739,97 +629,64 @@ def add_purchase_order(order_items):
     db.session.add(order)
     db.session.commit()
     return order
-//}
+```
 
-===== 実装した商品選択画面
-
+##### 実装した商品選択画面
 
 画像のように商品を選択して注文するボタンが配置された画面となります。
 
+![商品選択画面](images/chapxx-sumihiro3/06_ProductSelectionScreen.jpg)
 
-
-//image[06_ProductSelectionScreen][商品選択画面]{
-//}
-
-
-
-
-//image[07_ProductSelectionButton][商品選択画面ボタン]{
-//}
-
-
-
+![商品選択画面ボタン](images/chapxx-sumihiro3/07_ProductSelectionButton.jpg)
 
 注文を登録すると決済用のQRコードが表示されるようになっています。
 
+![決済用QRコード](images/chapxx-sumihiro3/08_QRCodeForPayment.jpg)
 
 
-//image[08_QRCodeForPayment][決済用QRコード]{
-//}
-
-
-
-==== 購入者が利用する機能・画面
-
+#### 購入者が利用する機能・画面
 
 購入者が利用する決済用QRコード読み取り〜決済画面・機能です。LINE Pay のアプリを立ち上げて決済するような感じですね。
 
-
-===== QRコードリーダー画面
-
+##### QRコードリーダー画面
 
 QRコードリーダー画面は自前で実装しません。LINE のURLスキームから呼び出すことができます。リッチメニューのリンクに下記のURLを登録するだけでOKです。
 
-
-
-@<b>{line://nv/QRCodeReader}
-
-
+*line://nv/QRCodeReader*
 
 このようにアプリでよく使う機能がURLスキームとして準備されているので、実装の手間が省けてコンテンツの作成に集中できるのも有り難いです。
 
-
-
-//image[09_QRCodeReader][QRコードリーダー]{
-//}
+![QRコードリーダー](images/chapxx-sumihiro3/09_QRCodeReader.jpg)
 
 
 
-===== 決済開始画面
-
+##### 決済開始画面
 
 購入者が操作する決済画面です。こちらもLIFFとして登録しておきます。
 
-
-
 こちらもVue.js で作成しています。この画面で出来ることは以下のとおりです。
 
- * 決済内容を確認して決済を開始する
- * LINE Pay 側にリダイレクトし、決済を実施する
+- 決済内容を確認して決済を開始する
+- LINE Pay 側にリダイレクトし、決済を実施する
 
+###### 画面表示
 
-====== 画面表示
+ここではFlask のテンプレートエンジン（Jinja2）で決済開始画面のHTML ファイル（pay_by_line_pay.html）を返します。
 
-
-ここではFlask のテンプレートエンジン（Jinja2）で決済開始画面のHTML ファイル（pay@<b>{by}line_pay.html）を返します。
-
-
-//emlist[][python]{
+```python
 @app.route('/pay_by_line_pay', methods=['GET'])
 def get_pay_by_line_pay():
     return render_template(
         'pay_by_line_pay.html'
     )
 
-//}
+```
 
-====== HTML（pay@<b>{by}line_pay.html）
-
+###### HTML（pay_by_line_pay.html）
 
 決済内容と決済を介するボタンを表示しています。
 
-
-//emlist[][html]{
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -909,15 +766,13 @@ def get_pay_by_line_pay():
 </body>
 </html>
 
-//}
+```
 
-====== JavaScript（pay@<b>{by}line_pay.js）
-
+###### JavaScript（pay_by_line_pay.js）
 
 axios を使って決済処理中の注文情報を取得する機能を実装しています。
 
-
-//emlist[][javascript]{
+```javascript
           async getPurchaseOrder() {
             console.log('getPurchaseOrder called!!')
             // 決済処理中の注文情報を 取得
@@ -936,19 +791,15 @@ axios を使って決済処理中の注文情報を取得する機能を実装�
             this.api_result = response.data
             this.order = this.api_result.order
         },
-//}
+```
 
-===== 注文情報取得API
-
+##### 注文情報取得API
 
 注文情報をフロントから取得するAPIを設けます。
 
-
-
 SQLAlchemy を使ってデータベースから注文情報を取得して返しています。
 
-
-//emlist[][python]{
+```python
 @app.route('/api/order/<user_id>/<order_id>', methods=['GET'])
 def get_order_info(user_id, order_id):
     # query order
@@ -960,31 +811,22 @@ def get_order_info(user_id, order_id):
             'amount': order.amount
         }
     })
-//}
+```
 
-===== 実装した決済開始画面
-
+##### 実装した決済開始画面
 
 画像のように商品選択画面で登録した注文情報が表示され、LINE Pay で決済予約処理を実行するボタンが配置された画面となります。
 
+![決済開始画面](images/chapxx-sumihiro3/10_SettlementStartScreen.jpg)
 
 
-//image[10_SettlementStartScreen][決済開始画面]{
-//}
-
-
-
-===== 決済予約処理の実行
-
+##### 決済予約処理の実行
 
 商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得する処理を実行します。
 
-
-
 LINE Pay の決済予約API を実行して、返ってくるトランザクションID とユーザーを注文情報に結び付け、決済承認画面にリダイレクトしています。
 
-
-//emlist[][python]{
+```python
 @app.route("/pay/reserve", methods=['POST'])
 def handle_pay_reserve():
     order_id = request.form.get('order_id', None)
@@ -992,7 +834,7 @@ def handle_pay_reserve():
     # get PurchaseOrder and User
     order = PurchaseOrder.query.filter(PurchaseOrder.id==order_id).first()
     user = User.query.filter(User.id==user_id).first()
-        # do reserve payment
+		# do reserve payment
     response = pay.reserve_payment(order)
     app.logger.debug('Response: %s', json_util.dump_json_with_pretty_format(response))
     app.logger.debug('returnCode: %s', response["returnCode"])
@@ -1007,24 +849,18 @@ def handle_pay_reserve():
     # redirect to LINE Pay payment page
     redirect_url = response["info"]["paymentUrl"]["web"]
     return redirect(redirect_url)
-//}
+```
 
-====== LINE Pay API 決済予約の実行
-
+###### LINE Pay API 決済予約の実行
 
 LINE Pay API を呼び出す部分です。
 決済する注文情報とAPI で設定された各種パラメータを設定して決済予約APIのURL（/v2/payments/request）へPOSTリクエストを送ります。
 
-
-
 API のパラメータについては、[LINE Pay 技術ドキュメント]をご確認ください。(https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
-
-
 
 line_pay.py（抜粋）
 
-
-//emlist[][python]{
+```python
     def reserve_payment(
             self,
             purchase_order,
@@ -1075,49 +911,31 @@ line_pay.py（抜粋）
             proxies=self.__proxies
         )
         return response.json()
-//}
+```
 
-===== LINE Pay の決済承認画面
 
+##### LINE Pay の決済承認画面
 
 決済予約処理が正常に完了すると、画像のようにLINE Pay の決済承認画面が表示されます。ここはLINE Pay プラットフォーム側の画面となります。
 
-
-
 注文情報（注文名や決済する金額）、指定した画像と決済承認ボタンが表示されています。
 
-
-
-//image[11_MerchantSettlementScreen][加盟店決済画面]{
-//}
-
-
-
+![加盟店決済画面](images/chapxx-sumihiro3/11_MerchantSettlementScreen.jpg)
 
 「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービスのサーバーへ処理が返ってきます。
 
+![決済完了画面](images/chapxx-sumihiro3/12_PaymentCompletionScreen.jpg)
 
 
-//image[12_PaymentCompletionScreen][決済完了画面]{
-//}
-
-
-
-===== 決済実行処理の実行
-
+##### 決済実行処理の実行
 
 LINE Pay 側からサーバーサイドの決済実行処理が呼び出されますので、決済実行API を呼び出して決済を完了させます。
 
-
-
 決済実行API が正常に完了すれば、注文情報のステータスを決済完了にして更新します。
-
-
 
 最後に決済完了のメッセージやページを表示させれば実装完了です。
 
-
-//emlist[][python]{
+```python
 @app.route("/pay/confirm", methods=['GET'])
 def handle_pay_confirm():
     transaction_id = request.args.get('transactionId')
@@ -1134,20 +952,17 @@ def handle_pay_confirm():
     db.session.commit()
     db.session.close()
     return "決済が完了しました"
-//}
+```
 
-====== LINE Pay API 決済実行
 
+###### LINE Pay API 決済実行
 
 LINE Pay API を呼び出す部分です。
 API で設定された各種パラメータを設定して決済実行APIのURL（/v2/payments/{transaction_id}/confirm）へPOSTリクエストを送ります。
 
-
-
 API のパラメータについては、[LINE Pay 技術ドキュメント]をご確認ください。(https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
 
-
-//emlist[][python]{
+```python
     def confirm_payments(self, purchase_order):
         line_pay_url = self.__line_pay_url
         line_pay_endpoint = f'{line_pay_url}/v2/payments/{purchase_order.transaction_id}/confirm'
@@ -1163,71 +978,57 @@ API のパラメータについては、[LINE Pay 技術ドキュメント]を�
             proxies=self.__proxies
         )
         return response.json()
-//}
+```
 
-==== heroku へのデプロイ
 
-===== 環境変数の設定
+#### heroku へのデプロイ
 
+##### 環境変数の設定
 
 デプロイの前に今回のBot サービスで使用する環境変数をheroku に登録しておきます。
 
-
-====== LINE Bot のChannel Secretとアクセストークン
-
+###### LINE Bot のChannel Secretとアクセストークン
 
 これらの情報はLINE Developers の画面から取得できます。
 
-
-//emlist[][bash]{
+```bash
 $ heroku config:set LINEBOT_CHANNEL_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxx -a {YOUR_APP_NAME}
 $ heroku config:set LINEBOT_CHANNEL_SECRET=xxxxxxxxxx -a {YOUR_APP_NAME}
-//}
+```
 
-====== LINE Pay API のChannel ID など
 
+###### LINE Pay API のChannel ID など
 
 これらの情報はLINE Pay API Sandbox の画面から取得できます。
 
+LINE_PAY_CONFIRM_URL は、LINE Pay での決済承認後、自分のサーバーに返ってくるURLを指定します。
 
-
-LINE@<b>{PAY}CONFIRM_URL は、LINE Pay での決済承認後、自分のサーバーに返ってくるURLを指定します。
-
-
-//emlist[][bash]{
+```bash
 $ heroku config:set LINE_PAY_URL=https://sandbox-api-pay.line.me -a {YOUR_APP_NAME}
 $ heroku config:set LINE_PAY_CHANNEL_ID=xxxxxxxxx -a {YOUR_APP_NAME}
 $ heroku config:set LINE_PAY_CHANNEL_SECRET=xxxxxxxxxxxx -a {YOUR_APP_NAME}
 $ heroku config:set LINE_PAY_CONFIRM_URL=https://{YOUR_APP_NAME}/pay/confirm -a {YOUR_APP_NAME}
-//}
+```
 
-====== psycopg2 でのアクセスで使用するデータベスURL
-
+###### psycopg2 でのアクセスで使用するデータベスURL
 
 SQL Alchemy でのデータベース接続情報はheroku のHeroku Postgres 設定画面などで確認できます。
 
-
-//emlist[][bash]{
+```bash
 $ heroku config:set POSTGRESQL_DATABASE_URL=postgres+psycopg2://{DB_USER_ID}:{DB_USER_PASSWORD}@{DB_SERVER_URL}:5432/{DB_NAME} -a {YOUR_APP_NAME}
-//}
+```
 
-====== 固定IPアクセス用のプロキシURL
-
+###### 固定IPアクセス用のプロキシURL
 
 固定IPアクセス用のプロキシURL に関する環境変数は、QuotaGuard Static アドオン登録時に登録されますので追加設定は不要です。
 
-
-===== コンテナのデプロイ
-
+##### コンテナのデプロイ
 
 いよいよBotサービスをheroku にリリースします。
 
-
-
 heroku のコンテナサービスにログインして、コンテナイメージをpush、heroku アプリケーションとしてリリースします。
 
-
-//emlist[][bash]{
+```bash
 // login to heroku container
 $ heroku container:login
 Login Succeeded
@@ -1239,41 +1040,44 @@ Your image has been successfully pushed. You can now release it with the 'contai
 // release application
 $ heroku container:release -a {YOUR_APP_NAME} web
 Releasing images web to {YOUR_APP_NAME}
-//}
-
+```
 
 これで完了です！
 
-
-== 最後に
-
+## 最後に
 
 解説が長くなりましたが、基本的な決済機能の組み込みは以上です。
 サービスとして公開するにはキャンセル処理なども実装する必要がありますが、他APIの呼び出しについても同様にAPI ドキュメントに沿ってパラメータを指定するだけです。
 
-
-
 また、今回はBot への組み込みで解説しましたがWeb ページへの組み込みもほぼ同じですので、決済機能を組み込んで個人でも稼いでいきましょう！
 
 
-== 関連リンク
- * @<href>{https://qiita.com/nkjm/items/b4f70b4daaf343a2bedc,LINE Pay APIを使ってアプリに決済を組み込む方法}
- * @<href>{https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/shinkoku/annai/09.htm,［手続名］所得税の青色申告承認申請手続：国税庁}
- * @<href>{https://line.me/ja/pay,LINE Pay}
- ** @<href>{https://pay.line.me/jp/intro?locale=ja_JP,LINE Pay 加盟店申請}
- ** @<href>{https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP,SandBox 申請}
- ** @<href>{https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP,LINE Pay 技術ドキュメント}
- ** @<href>{https://pay.line.me/jp/developers/documentation/download/logo?locale=ja_JP,LINE Pay ロゴ画像}
- * LINE Messaging API
- ** @<href>{https://github.com/line/line-bot-sdk-python,line-bot-sdk-python}
- * @<href>{https://jp.heroku.com/,heroku}
- ** @<href>{https://devcenter.heroku.com/categories/command-line,heroku CLI}
- ** @<href>{https://devcenter.heroku.com/categories/deploying-with-docker,Deploying with Docker}
- ** @<href>{https://devcenter.heroku.com/articles/quotaguardstatic,QuotaGuard Static}
- ** @<href>{https://devcenter.heroku.com/articles/heroku-postgresql,Heroku Postgres}
- ** @<href>{https://qiita.com/nanakenashi/items/d3572989d76a651262b5,FlaskアプリケーションをHeroku上のDockerで起動}
- ** @<href>{https://qiita.com/sho7650/items/9654377a8fc2d4db236d,Heroku で Docker を使う場合の諸注意}
- * Vue.js
- ** @<href>{https://vuetifyjs.com/ja/,Vuetify}
- ** @<href>{https://github.com/theomessin/vue-qriously,vue-qriously}
+## 関連リンク
 
+- [LINE Pay APIを使ってアプリに決済を組み込む方法](https://qiita.com/nkjm/items/b4f70b4daaf343a2bedc)
+
+- [［手続名］所得税の青色申告承認申請手続：国税庁](https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/shinkoku/annai/09.htm)
+
+- [LINE Pay](https://line.me/ja/pay)
+
+    - [LINE Pay 加盟店申請](https://pay.line.me/jp/intro?locale=ja_JP)
+    - [SandBox 申請](https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP)
+    - [LINE Pay 技術ドキュメント](https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
+    - [LINE Pay ロゴ画像](https://pay.line.me/jp/developers/documentation/download/logo?locale=ja_JP)
+
+- LINE Messaging API
+    - [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
+
+- [heroku](https://jp.heroku.com/)
+    - [heroku CLI](https://devcenter.heroku.com/categories/command-line)
+    - [Deploying with Docker](https://devcenter.heroku.com/categories/deploying-with-docker)
+    - [QuotaGuard Static](https://devcenter.heroku.com/articles/quotaguardstatic)
+    - [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql)
+    - [FlaskアプリケーションをHeroku上のDockerで起動](https://qiita.com/nanakenashi/items/d3572989d76a651262b5)
+    - [Heroku で Docker を使う場合の諸注意](https://qiita.com/sho7650/items/9654377a8fc2d4db236d)
+
+- Vue.js
+    - [Vuetify](https://vuetifyjs.com/ja/)
+    - [vue-qriously](https://github.com/theomessin/vue-qriously)
+
+  
