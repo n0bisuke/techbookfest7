@@ -67,7 +67,7 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 
 特別なものはありませんね。それではいよいよ加盟店申請です。
 
-![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/01_LINEPayAppForMenber.png)
+![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/01_LINEPayAppForMenber.png =1280x)
 
 [LINE Pay 加盟店申請ページ](https://pay.line.me/jp/intro?locale=ja_JP)ページ（リンク先の右上赤枠部分）にアクセスしてください。
 
@@ -635,13 +635,13 @@ def add_purchase_order(order_items):
 
 画像のように商品を選択して注文するボタンが配置された画面となります。
 
-![商品選択画面](images/chapxx-sumihiro3/06_ProductSelectionScreen.jpg)
+![商品選択画面](images/chapxx-sumihiro3/06_ProductSelectionScreen.png)
 
-![商品選択画面ボタン](images/chapxx-sumihiro3/07_ProductSelectionButton.jpg)
+![商品選択画面ボタン](images/chapxx-sumihiro3/07_ProductSelectionButton.png)
 
 注文を登録すると決済用のQRコードが表示されるようになっています。
 
-![決済用QRコード](images/chapxx-sumihiro3/08_QRCodeForPayment.jpg)
+![決済用QRコード](images/chapxx-sumihiro3/08_QRCodeForPayment.png)
 
 
 #### 購入者が利用する機能・画面
@@ -656,7 +656,7 @@ QRコードリーダー画面は自前で実装しません。LINE のURLスキ�
 
 このようにアプリでよく使う機能がURLスキームとして準備されているので、実装の手間が省けてコンテンツの作成に集中できるのも有り難いです。
 
-![QRコードリーダー](images/chapxx-sumihiro3/09_QRCodeReader.jpg)
+![QRコードリーダー](images/chapxx-sumihiro3/09_QRCodeReader.png)
 
 
 
@@ -817,7 +817,7 @@ def get_order_info(user_id, order_id):
 
 画像のように商品選択画面で登録した注文情報が表示され、LINE Pay で決済予約処理を実行するボタンが配置された画面となります。
 
-![決済開始画面](images/chapxx-sumihiro3/10_SettlementStartScreen.jpg)
+![決済開始画面](images/chapxx-sumihiro3/10_SettlementStartScreen.png)
 
 
 ##### 決済予約処理の実行
@@ -920,11 +920,11 @@ line_pay.py（抜粋）
 
 注文情報（注文名や決済する金額）、指定した画像と決済承認ボタンが表示されています。
 
-![加盟店決済画面](images/chapxx-sumihiro3/11_MerchantSettlementScreen.jpg)
+![加盟店決済画面](images/chapxx-sumihiro3/11_MerchantSettlementScreen.png)
 
 「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービスのサーバーへ処理が返ってきます。
 
-![決済完了画面](images/chapxx-sumihiro3/12_PaymentCompletionScreen.jpg)
+![決済完了画面](images/chapxx-sumihiro3/12_PaymentCompletionScreen.png)
 
 
 ##### 決済実行処理の実行
