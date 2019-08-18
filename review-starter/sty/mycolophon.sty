@@ -4,8 +4,7 @@
 
 \newcommand{\mycolophon}{%
 
-  \clearpage                     % 改ページ
-  \pltx@cleartoleftpage          % もし右ページならもう一度改ページして左ページにする
+  \reviewcolophon                % 奥付が最終ページになるよう調整する
 
   \thispagestyle{empty}          % ページ番号やヘッダーをなくす
   \setlength{\parindent}{0pt}    % インデント幅をゼロに
@@ -64,9 +63,14 @@
   %{\textcopyright} 20XX 〈著者名〉 all rights reserved.
 
   %%% 「powered by Re:VIEW Starter」の表示（消去可）
-  \raggedleft                    % 右寄せ
-  \scriptsize                    % 文字を小さく
-  \slshape                       % 斜体（スラント体）
-  \textcolor{darkgray}{(powered by Re:VIEW Starter)}
+  {
+    \ifx\starter@colophon@poweredby\empty\else
+      \raggedleft                % 右寄せ
+      \scriptsize                % 文字を小さく
+      \slshape                   % 斜体（スラント体）
+      \textcolor{darkgray}{(powered by Re:VIEW Starter)}
+      \par                       % これがないと右寄せされない
+    \fi
+  }
 
 }

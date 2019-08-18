@@ -37,6 +37,7 @@ module ReVIEW
     ## ブロック命令
     defblock :program, 0..3      ## プログラム
     defblock :terminal, 0..3     ## ターミナル
+    defblock :sideimage, 2..3    ## テキストの横に画像を表示
 
     ## インライン命令
     definline :secref            ## 節(Section)や項(Subsection)を参照
@@ -393,13 +394,57 @@ module ReVIEW
     def on_caution_block   caption=nil, &b; on_minicolumn :caution  , caption, &b; end
     def on_notice_block    caption=nil, &b; on_minicolumn :notice   , caption, &b; end
 
-    protected
-
     def on_minicolumn(type, caption=nil, &b)
       raise NotImplementedError.new("#{self.class.name}#on_minicolumn(): not implemented yet.")
     end
+    protected :on_minicolumn
 
-    public
+    def on_sideimage_block(imagefile, imagewidth, option_str=nil, &b)
+      raise NotImplementedError.new("#{self.class.name}#on_sideimage_block(): not implemented yet.")
+    end
+
+    def validate_sideimage_args(imagefile, imagewidth, option_str)
+      opts = {}
+      if option_str.present?
+        option_str.split(',').each do |kv|
+          kv.strip!
+          next if kv.empty?
+          kv =~ /(\w[-\w]*)=(.*)/  or
+            error "//sideimage: [#{option_str}]: invalid option string."
+          opts[$1] = $2
+        end
+      end
+      #
+      opts.each do |k, v|
+        case k
+        when 'side'
+          v == 'L' || v == 'R'  or
+            error "//sideimage: [#{option_str}]: 'side=' should be 'L' or 'R'."
+        when 'boxwidth'
+          v =~ /\A\d+(\.\d+)?(%|mm|cm|zw)\z/  or
+            error "//sideimage: [#{option_str}]: 'boxwidth=' invalid (expected such as 10%, 30mm, 3.0cm, or 5zw)"
+        when 'sep'
+          v =~ /\A\d+(\.\d+)?(%|mm|cm|zw)\z/  or
+            error "//sideimage: [#{option_str}]: 'sep=' invalid (expected such as 2%, 5mm, 0.5cm, or 1zw)"
+        when 'border'
+          v =~ /\A(on|off)\z/  or
+            error "//sideimage: [#{option_str}]: 'border=' should be 'on' or 'off'"
+          opts[k] = v == 'on' ? true : false
+        else
+          error "//sideimage: [#{option_str}]: unknown option '#{k}=#{v}'."
+        end
+      end
+      #
+      imagefile.present?  or
+        error "//sideimage: 1st option (image file) required."
+      imagewidth.present?  or
+        error "//sideimage: 2nd option (image width) required."
+      imagewidth =~ /\A\d+(\.\d+)?(%|mm|cm|zw|pt)\z/  or
+        error "//sideimage: [#{imagewidth}]: invalid image width (expected such as: 30mm, 3.0cm, 5zw, or 100pt)"
+      #
+      return imagefile, imagewidth, opts
+    end
+    protected :validate_sideimage_args
 
     ## コードブロック（//program, //terminal）
 
@@ -470,6 +515,12 @@ module ReVIEW
             opts[k] = v.to_i
           else
             raise "//#{blockname}[][][#{x}]: expected integer value."
+          end
+        when 'fontsize'
+          if v =~ /\A((x-|xx-)?small|(x-|xx-)?large)\z/
+            opts[k] = v
+          else
+            raise "//#{blockname}[][][#{x}]: expected small/x-small/xx-small."
           end
         when 'lang'
           if v
@@ -573,10 +624,47 @@ module ReVIEW
       raise NotImplementedError.new("#{self.class.name}#_build_secref(): not implemented yet.")
     end
 
+    protected
+
+    def find_image_filepath(image_id)
+      finder = get_image_finder()
+      filepath = finder.find_path(image_id)
+      return filepath
+    end
+
+    def get_image_finder()
+      imagedir = "#{@book.basedir}/#{@book.config['imagedir']}"
+      types    = @book.image_types
+      builder  = @book.config['builder']
+      chap_id  = @chapter.id
+      return ReVIEW::Book::ImageFinder.new(imagedir, chap_id, builder, types)
+    end
+
   end
 
 
   class LATEXBuilder
+
+    ## 改行命令「\\」のあとに改行文字「\n」を置かない。
+    ##
+    ## 「\n」が置かれると、たとえば
+    ##
+    ##     foo@<br>{}
+    ##     bar
+    ##
+    ## が
+    ##
+    ##     foo\\
+    ##
+    ##     bar
+    ##
+    ## に展開されてしまう。
+    ## つまり改行のつもりが改段落になってしまう。
+    def inline_br(_str)
+      #"\\\\\n"   # original
+      "\\\\{}"
+    end
+
 
     ## コードブロック（//program, //terminal）
 
@@ -589,6 +677,15 @@ module ReVIEW
     end
 
     protected
+
+    FONTSIZES = {
+      "small"    => "small",
+      "x-small"  => "footnotesize",
+      "xx-small" => "scriptsize",
+      "large"    => "large",
+      "x-large"  => "Large",
+      "xx-large" => "LARGE",
+    }
 
     ## コードブロック（//program, //terminal）
     def _codeblock(blockname, lines, id, caption, optionstr)
@@ -605,9 +702,9 @@ module ReVIEW
       end
       #
       if id.present? || caption.present?
-        str = _build_caption_str(id, caption)
-        puts "\\startercodeblockcaption{#{str}}"
-        puts "\\label{#{id}}" if id
+        caption_str = _build_caption_str(id, caption)
+      else
+        caption_str = nil
       end
       #
       if within_context?(:note)
@@ -615,8 +712,11 @@ module ReVIEW
         puts "\\end{starternoteinner}" unless yes
       end
       #
+      fontsize = FONTSIZES[opts['fontsize']]
+      print "\\def\\startercodeblockfontsize{#{fontsize}}\n"
+      #
       environ = "starter#{blockname}"
-      print "\\begin{#{environ}}"
+      print "\\begin{#{environ}}[#{id}]{#{caption_str}}"
       print "\\startersetfoldmark{}" unless opts['foldmark']
       if opts['eolmark']
         print "\\startereolmarkdark{}"  if blockname == 'terminal'
@@ -665,14 +765,16 @@ module ReVIEW
           v =~ /\A[Hhtb]+\z/  or  # H: Here, h: here, t: top, b: bottom
             raise "//image[][][pos=#{v}]: expected 'pos=H' or 'pos=h'."
           pos = v     # detect 'pos=H' or 'pos=h'
-        when 'border'
+        when 'border', 'draft'
           case v
-          when nil  ; border = true
-          when 'on' ; border = true
-          when 'off'; border = false
+          when nil  ; flag = true
+          when 'on' ; flag = true
+          when 'off'; flag = false
           else
-            raise "//image[][][border=#{v}]: expected 'border=on' or 'border=off'"
+            raise "//image[][][#{k}=#{v}]: expected '#{k}=on' or '#{k}=off'"
           end
+          border = flag          if k == 'border'
+          arr << "draft=#{flag}" if k == 'draft'
         else
           arr << (v.nil? ? k : "#{k}=#{v}")
         end
@@ -713,9 +815,19 @@ module ReVIEW
 
     public
 
+    def ul_begin
+      blank
+      puts '\begin{starteritemize}'    # instead of 'itemize'
+    end
+
+    def ul_end
+      puts '\end{starteritemize}'      # instead of 'itemize'
+      blank
+    end
+
     def ol_begin(start_num=nil)
       blank
-      puts '\begin{enumerate}'
+      puts '\begin{starterenumerate}'  # instead of 'enumerate'
       if start_num.nil?
         return true unless @ol_num
         puts "\\setcounter{enumi}{#{@ol_num - 1}}"
@@ -724,7 +836,7 @@ module ReVIEW
     end
 
     def ol_end
-      puts '\end{enumerate}'
+      puts '\end{starterenumerate}'    # instead of 'enumerate'
       blank
     end
 
@@ -737,8 +849,6 @@ module ReVIEW
     def ol_item_end()
     end
 
-    protected
-
     ## 入れ子可能なブロック命令
 
     def on_minicolumn(type, caption, &b)
@@ -750,6 +860,29 @@ module ReVIEW
       end
       yield
       puts "\\end{reviewminicolumn}\n"
+    end
+    protected :on_minicolumn
+
+    def on_sideimage_block(imagefile, imagewidth, option_str=nil, &b)
+      imagefile, imagewidth, opts = validate_sideimage_args(imagefile, imagewidth, option_str)
+      filepath = find_image_filepath(imagefile)
+      side     = opts['side'] || 'L'
+      normalize = proc {|s|
+        s =~ /\A(\d+(?:\.\d+)?)(%|mm|cm)\z/
+        if    $2.nil?   ; s
+        elsif $2 == '%' ; "#{$1.to_f/100.0}\\textwidth"
+        else            ; "#{$1}true#{$2}"
+        end
+      }
+      imgwidth = normalize.call(imagewidth)
+      boxwidth = normalize.call(opts['boxwidth']) || imgwidth
+      sepwidth = normalize.call(opts['sep'] || "0pt")
+      puts "{\n"
+      puts "  \\def\\starterminiimageframe{Y}\n" if opts['border']
+      puts "  \\begin{startersideimage}{#{side}}{#{filepath}}{#{imgwidth}}{#{boxwidth}}{#{sepwidth}}{}\n"
+      yield
+      puts "  \\end{startersideimage}\n"
+      puts "}\n"
     end
 
   end
@@ -917,8 +1050,6 @@ module ReVIEW
       puts "</li>"
     end
 
-    protected
-
     ## 入れ子可能なブロック命令
 
     def on_minicolumn(type, caption, &b)
@@ -926,6 +1057,29 @@ module ReVIEW
       puts "<p class=\"caption\">#{compile_inline(caption)}</p>" if caption.present?
       yield
       puts '</div>'
+    end
+    protected :on_minicolumn
+
+    def on_sideimage_block(imagefile, imagewidth, option_str=nil, &b)
+      imagefile, imagewidth, opts = validate_sideimage_args(imagefile, imagewidth, option_str)
+      filepath = find_image_filepath(imagefile)
+      side     = (opts['side'] || 'L') == 'L' ? 'left' : 'right'
+      imgclass = opts['border'] ? "image-bordered" : nil
+      normalize = proc {|s| s =~ /^\A(\d+(\.\d+))%\z/ ? "#{$1.to_f/100.0}\\textwidth" : s }
+      imgwidth = normalize.call(imagewidth)
+      boxwidth = normalize.call(opts['boxwidth']) || imgwidth
+      sepwidth = normalize.call(opts['sep'] || "0pt")
+      #
+      puts "<div class=\"sideimage\">\n"
+      puts "  <div class=\"sideimage-image\" style=\"float:#{side};text-align:center;width:#{boxwidth}\">\n"
+      puts "    <img src=\"#{filepath}\" class=\"#{imgclass}\" style=\"width:#{imgwidth}\"/>\n"
+      puts "  </div>\n"
+      puts "  <div class=\"sideimage-text\" style=\"margin-#{side}:#{boxwidth}\">\n"
+      puts "    <div style=\"marign-#{side}:#{sepwidth}\">\n"
+      yield
+      puts "    </div>\n"
+      puts "  </div>\n"
+      puts "</div>\n"
     end
 
   end
@@ -986,6 +1140,23 @@ module ReVIEW
         @compile_errors = true
         warn "compile error in #{filename}.tex (#{e.class})"
         warn e.message
+      end
+    end
+
+    ## 開発用。LaTeXコンパイル回数を環境変数で指定する。
+    if ENV['STARTER_COMPILETIMES']
+      begin
+        alias __system_or_raise system_or_raise
+      rescue
+        nil
+      end
+      def system_or_raise(*args)
+        @_done ||= {}
+        ntimes = ENV['STARTER_COMPILETIMES'].to_i
+        @_done[args] ||= 0
+        return if @_done[args] >= ntimes
+        @_done[args] += 1
+        __system_or_raise(*args)
       end
     end
 

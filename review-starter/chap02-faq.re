@@ -26,10 +26,7 @@ ccc
 ddd
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 aaa
 
@@ -41,7 +38,7 @@ ccc
 
 ddd
 
-//resultend
+//sampleoutputend
 
 
 
@@ -68,10 +65,7 @@ Re:VIEWの仕様です。
 全世界は再びラピュタのもとにひれ伏すことになるだろう。
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
 見せてあげよう、ラピュタの雷を！
@@ -79,7 +73,7 @@ Re:VIEWの仕様です。
 ラーマーヤナではインドラの矢とも伝えているがね。
 全世界は再びラピュタのもとにひれ伏すことになるだろう。
 
-//resultend
+//sampleoutputend
 
 
 
@@ -95,10 +89,7 @@ Re:VIEWの仕様です。
 
 
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
 見せてあげよう、ラピュタの雷を！
@@ -106,7 +97,7 @@ Re:VIEWの仕様です。
 ラーマーヤナではインドラの矢とも伝えているがね。
 全世界は再びラピュタのもとにひれ伏すことになるだろう。
 
-//resultend
+//sampleoutputend
 
 
 
@@ -130,10 +121,7 @@ Re:VIEW開発チームに問い合わせたところ、これがRe:VIEWの仕様
 
 そこでStarterでは、段落の途中の行をコメントアウトしても段落が分かれないように変更しました。
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 これから王国の復活を祝って、諸君にラピュタの力を見せてやろうと思ってね。
 見せてあげよう、ラピュタの雷を！
@@ -141,7 +129,7 @@ Re:VIEW開発チームに問い合わせたところ、これがRe:VIEWの仕様
 ラーマーヤナではインドラの矢とも伝えているがね。
 全世界は再びラピュタのもとにひれ伏すことになるだろう。
 
-//resultend
+//sampleoutputend
 
 
 
@@ -164,14 +152,11 @@ Re:VIEWのバグです@<fn>{zf4y3}。
 //}
 
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  * aa bbcc ddee ff
 
-//resultend
+//sampleoutputend
 
 
 
@@ -186,23 +171,20 @@ Starterだと上の例はこのように表示されます。
    ee ff
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  * aa bb
    cc dd
    ee ff
 
-//resultend
+//sampleoutputend
 
 
 
 //footnote[zf4y3][少なくともRe:VIEW 3.1まではこのバグが存在します。]
 
 
-=== 順序つき箇条書きに「A.」や「a.」や「i.」を使いたい
+=== 順序つき箇条書きに「A.」や「a.」や「(1)」を使いたい
 
 Re:VIEWではできません。
 
@@ -223,10 +205,7 @@ Re:VIEWの文法を拡張するしかないです。
  - b. 項目2
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  - 1. 項目1
  - 2. 項目2
@@ -237,7 +216,7 @@ Re:VIEWの文法を拡張するしかないです。
  - a. 項目1
  - b. 項目2
 
-//resultend
+//sampleoutputend
 
 
 
@@ -252,10 +231,7 @@ Re:VIEWの文法を拡張するしかないです。
  - (A-2) 項目2
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  - (1) 項目1
  - (2) 項目2
@@ -263,7 +239,7 @@ Re:VIEWの文法を拡張するしかないです。
  - (A-1) 項目1
  - (A-2) 項目2
 
-//resultend
+//sampleoutputend
 
 
 
@@ -287,10 +263,7 @@ Re:VIEWでは、順序なし箇条書きは入れ子にできますが、順序�
  -- (2) 中項目
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  - (A) 大項目
  -- (1) 中項目
@@ -298,7 +271,7 @@ Re:VIEWでは、順序なし箇条書きは入れ子にできますが、順序�
  --- (1-b) 小項目
  -- (2) 中項目
 
-//resultend
+//sampleoutputend
 
 
 
@@ -313,10 +286,7 @@ Re:VIEWでは、順序なし箇条書きは入れ子にできますが、順序�
  *** 小項目
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
  * 大項目
  -- a. 中項目
@@ -324,7 +294,7 @@ Re:VIEWでは、順序なし箇条書きは入れ子にできますが、順序�
  *** 小項目
  *** 小項目
 
-//resultend
+//sampleoutputend
 
 
 
@@ -352,10 +322,7 @@ print("Hello, World!")
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //note[■ノートの中にソースコード]{
 
@@ -367,7 +334,7 @@ print("Hello, World!")
 
 //}
 
-//resultend
+//sampleoutputend
 
 
 
@@ -376,6 +343,7 @@ print("Hello, World!")
  * @<code>{//note}
  * @<code>{//quote}
  * @<code>{//memo}
+ * @<code>{//sideimage}
 
 これ以外の命令を入れ子対応にしたい場合は、ハッシュタグ「#reviewstarter」をつけてツイートしてください。
 
@@ -407,10 +375,7 @@ Re:VIEWでは、たとえば「@<code>$//note{$ ... @<code>$//}$」の中に「@
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //note[■ノートの中に箇条書きやソースコードを入れる例]{
 
@@ -419,7 +384,7 @@ Re:VIEWでは、たとえば「@<code>$//note{$ ... @<code>$//}$」の中に「@
 
 //}
 
-//resultend
+//sampleoutputend
 
 
 
@@ -442,15 +407,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //memo[memoサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -458,15 +420,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //tip[tipサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -474,15 +433,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //info[infoサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -490,15 +446,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //warning[warningサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -506,15 +459,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //important[importantサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -522,15 +472,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //caution[cautionサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 //emlist[サンプル]{
@@ -538,15 +485,12 @@ Re:VIEWの仕様です。
 @<letitgo>$//$}
 //}
 
-//noindent
-@<em>{表示結果：}
-
-//resultbegin
+//sampleoutputbegin[表示結果]
 
 //notice[noticeサンプル]{
 //}
 
-//resultend
+//sampleoutputend
 
 
 
@@ -581,10 +525,7 @@ $ printf "Hi\n"         # コメントの前にタブ文字
 これをRe:VIEWでコンパイルすると、次のようにタブ文字のある行は表示が崩れてしまいます。
 しかもエラーメッセージが出るわけではないので、なかなか気づきません。
 
-//noindent
-@<em>{表示結果 (Re:VIEW)}
-
-//resultbegin
+//sampleoutputbegin[表示結果 (Re:VIEW)]
 
 //terminal{
 $ printf "Hi\n"         # コメントの前に半角空白
@@ -592,16 +533,13 @@ $ printf "Hi\n"         # コメントの前に半角空白
 $ printf "Hi\n"            # コメントの前にタブ文字
 //}
 
-//resultend
+//sampleoutputend
 
 
 
 Starterではこの不具合を修正し、タブ文字がある行でも表示が崩れないようにしました。
 
-//noindent
-@<em>{表示結果 (Starter)}
-
-//resultbegin
+//sampleoutputbegin[表示結果 (Starter)]
 
 //terminal{
 $ printf "Hi\n"         # コメントの前に半角空白
@@ -609,7 +547,7 @@ $ printf "Hi\n"         # コメントの前に半角空白
 $ printf "Hi\n"         # コメントの前に半角空白
 //}
 
-//resultend
+//sampleoutputend
 
 
 
@@ -638,6 +576,41 @@ $ printf "Hi\n"         # コメントの前に半角空白
 もし使えなくなったとしても、開発チームに苦情を申し立てないようお願いします。
 
 
+=== 日本語だと長い行での折り返しが効かないの？
+
+Starterでは、プログラムやターミナルでの長い行を自動的に折り返してくれます。
+これは英語でも日本語でも動作します。
+
+しかし折り返し箇所が日本語だと、折り返し記号がつきません。
+これはLaTeXでの制限であり、解決策は調査中です。
+一時的な対策として、折り返す箇所に「@<code>$@<foldhere>{}$」を埋め込むと、折り返し箇所が日本語でも折り返し記号がつきます。
+
+
+==={ikumq} まだ文字が入りそうなのに折り返しされるのはなんで？
+
+Starterで長い行が自動的に折り返されるとき、右端にはまだ文字が入るだけのスペースがありそうなのに折り返しされることがあります（@<img>{codeblock_rpadding1}）。
+
+//image[codeblock_rpadding1][右端にはまだ文字が入るだけのスペースがありそうだが…][scale=0.7]
+
+このような場合、プログラムやターミナルの表示幅をほんの少し広げるだけで、右端まで文字が埋まるようになります。
+
+具体的には、ファイル「@<em>{config-starter.yml}」の中の「@<code>{program_widen: 0.0mm}」や「@<code>{terminal_wide: 0.0mm}」を、たとえば「@<code>{0.3mm}」に設定してください（値は各自で調整してください）。
+
+//list[][ファイル「config-starter.yml」]{
+  ## プログラム（//list）の表示幅をほんの少しだけ広げる。
+  @<del>{program_waiden:   0.0mm}
+  @<b>{program_widen:   0.3mm}
+
+  ## ターミナル（//terminal, //cmd）の表示幅をほんの少しだけ広げる。
+  @<del>{terminal_widen:  0.0mm}
+  @<b>{terminal_widen:  0.3mm}
+//}
+
+こうすると、プログラムやターミナルの表示幅が少しだけ広がり、文字が右端まで埋まるようになります（@<img>{codeblock_rpadding2}）。
+
+//image[codeblock_rpadding2][表示幅をほんの少し広げると、右端まで埋まるようになった][scale=0.7]
+
+
 == コンパイル
 
 === なんで@<LaTeX>{}のコンパイルがいつも3回実行されるの？
@@ -647,18 +620,29 @@ Re:VIEWの仕様です。
 このような事態を防ぐために、3回コンパイルしているのだと思われます@<fn>{wm3r8}。
 //footnote[wm3r8][本当ならコンパイルの前後でauxファイルを比較して、ページ番号に差異があればもう一度コンパイルする、という方法が望ましいですが、そこまではしていないようです。]
 
+#@+++
 なお@<LaTeX>{}のコンパイルには1秒程度しかかからないはずです。
 3回繰り返しても、5秒未満でしょう。
 時間がかかるのはそのあとのPDFへの変換であり、これは画像のサイズやファイル数に比例して時間がかかります。
+#@---
 
 
 === コンパイルに時間かかりすぎ。もっと速くできない？
 
+#@+++
 前の節で説明したように、時間がかかるのは@<LaTeX>{}のコンパイルではなく、そのあとのPDF生成です。
 そしてPDF生成は、画像のサイズやファイル数に比例して時間がかかります。
+#@---
+
+たいていの場合、時間がかかるのは@<LaTeX>{}のコンパイルではなく、そのあとのPDF生成です。
+そしてPDF生成は、画像の数やサイズや解像度に比例して時間がかかります。
 
 画像のファイル数は減らせないので、かわりに画像のサイズを減らしたり、執筆中だけダミー画像で置き換えるのがいいでしょう。
 詳しくは『ワンストップ！技術同人誌を書こう』という本の第8章を参照してください。
+
+またStarterではドラフトモードを用意しています。
+ドラフトモードでは画像が枠線で表示されるだけで読み込まれないため、PDF生成がとても高速化します。
+詳しくは@<secref>{chap01-starter|8v2z5}を参照してください。
 
 または、@<em>{config.yml}の「@<code>$dvioptions:$」の値を調整してください。
 「@<code>$-z 1$」だと圧縮率は低いけど速くなり、「@<code>$-z 9$」だと圧縮率は高いけど遅くなります。
@@ -754,8 +738,12 @@ Re:VIEWの設定ファイルである@<em>{config.yml}や@<em>{catalog.yml}は�
 
  * タブ文字を使うと、エラーになります。かわりに半角スペースを使ってください。
  * 全角スペースを使うと、エラーになります。かわりに半角スペースを使ってください。
- * 「@<code>{:}」のあとに半角スペースが必要です。たとえば@<br>{}「@<tt>{titlepage:false}」はダメです。@<br>{}「@<tt>{titlepage: false}」のように書いてください。
- * 「@<code>{,}」のあとに半角スペースが必要です。たとえば@<br>{}「@<code>{texstyle: [reviewmacro,starter,mystyle]}」はダメです。@<br>{}「@<code>{texstyle: [reviewmacro, starter, mystyle]}」のように書いてください。
+ * 「@<code>{:}」のあとに半角スペースが必要です。たとえば@<br>{}
+   「@<tt>{titlepage:false}」はダメです。@<br>{}
+   「@<tt>{titlepage: false}」のように書いてください。
+ * 「@<code>{,}」のあとに半角スペースが必要です。たとえば@<br>{}
+   「@<code>{texstyle: [reviewmacro,starter,mystyle]}」はダメです。@<br>{}
+   「@<code>{texstyle: [reviewmacro, starter, mystyle]}」のように書いてください。
  * インデントが揃ってないと、エラーになります。
    たとえば@<em>{catalog.yml}が次のようになっていると、インデントが揃ってないのでエラーになります。
 
@@ -776,9 +764,29 @@ POSTDEF:
  * 「@<em>{-}」のあとに半角スペースが必要です。たとえば上の例で@<br>{}「@<code>{- chap01-starter.re}」が@<br>{}「@<code>{-chap01-starter.re}」となっていると、エラーになります。
 
 
-=== 印刷用とタブレット用で設定を少し変えるにはどうするの？
+==={qvtlq} 印刷用と電子用で設定を少し変えるにはどうするの？
 
-Re:VIEWにはそのような機能がありませんので、自力で頑張る必要があります。
+印刷所に入稿するためのPDFと、電子用（ダウンロード用）のPDFで、設定を変えたいことがあります。
+
+ * 印刷用のPDFは白黒だけど、電子用のPDFはカラーにしたい。
+ * 印刷用のPDFは外側の余白を詰めるけど、電子用ではしない。
+
+このように印刷用のPDFと電子用のPDFで設定を変えたい場合、Re:VIEWでは設定ファイルを継承して別の設定ファイルを作成します。しかしこの機能は設定ファイルを切り替えることしかできないので、使いづらいです。
+
+Starterでは別の設定ファイルを用意しなくても、環境変数「@<code>{$STARTER_TARGET}」を切り替えるだけで印刷用と電子用のPDFを切り替えられます。
+詳しくは@<secref>{chap01-starter|bn2iw}を参照してください。
+
+//terminal[][]{
+### 印刷用PDFを生成
+$ rake pdf    # または STARTER_TARGET=pbook rake pdf
+
+### 電子用PDFを生成
+$ STARTER_TARGET=ebook rake pdf
+//}
+
+ただしこの機能では、@<LaTeX>{}のスタイルファイル（@<code>{sty/starter.sty}や@<code>{sty/mytextsize.sty}）の中で行える範囲でしか変更はできません。
+そのため、たとえば@<code>{config.yml}や@<code>{catalog.yml}や@<code>{layouts/layout.tex.erb}で行うような変更をしたい場合@<fn>{4pxhe}は、自力で頑張る必要があります。
+//footnote[4pxhe][たとえば印刷用や電子用とは別にタブレット用を用意し、タブレット用では用紙サイズやフォントサイズを変えるような場合がこれに相当します。以降ではタブレット用を作成する例を紹介しています。]
 
 方針としては、設定ファイルやスタイルファイルを用途に応じて都度生成するといいでしょう。
 具体的には次のようにします。
@@ -894,11 +902,37 @@ end
 そのあとで「@<em>{rake pdf}」を実行すれば、用途に応じたPDFが生成されます。
 
 //cmd{
-$ @<b>$rake setup::printing  # 印刷用$
+$ @<b>{rake setup::printing  # 印刷用}
 $ rake pdf
 $ mv mybook.pdf mybook_printing.pdf
 
-$ @<b>$rake setup::tablet    # タブレット用$
+$ @<b>{rake setup::tablet    # タブレット用}
 $ rake pdf
 $ mv mybook.pdf mybook_tablet.pdf
 //}
+
+
+=== @<LaTeX>{}のスタイルファイルから環境変数を読める？
+
+Starterでは、名前が「@<em>{STARTER_}」で始まる環境変数を@<LaTeX>{}のスタイルファイルから参照できます。
+
+たとえば「@<code>{STARTER_FOO_BAR}」という環境変数を設定すると、@<code>{sty/mystyle.sty}や@<code>{sty/starter.sty}では「@<code>{\STARTER@FOO@BAR}」という名前で参照できます。
+想像がつくと思いますが、環境変数名の「@<code>{_}」は「@<code>{@}」に変換されます。
+
+//terminal[][環境変数を設定する例(macOS, UNIX)]{
+$ export STARTER_FOO_BAR="foobar"
+//}
+
+//list[][環境変数を参照する例]{
+%% ファイル：sty/mystyle.sty
+\newcommand\foobar[0]{%             % 引数なしコマンドを定義
+  \@ifundefined{STARTER@FOO@BAR}{%  % 未定義なら
+    foobar%                         % デフォルト値を使う
+  }{%                               % 定義済みなら
+    \STARTER@FOO@BAR%               % その値を使う
+  }%
+}
+//}
+
+この機能を使うと、出力や挙動を少し変更したい場合に環境変数でコントロールできます。
+また値の中に「@<code>{$}」や「@<code>{\\}」が入っていてもエスケープはしないので注意してください。

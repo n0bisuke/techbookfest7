@@ -8,6 +8,32 @@
 % \usepackage{fix-cm}[2006/09/13 v1.1m]
 % \usepackage{fixltx2e}[2006/09/13 v1.1m]
 
+
+%% copy values from 'config-starter.yml'
+\makeatletter
+<%- @config['starter'].each do |k, v| -%>
+<%-   if k == 'target' -%>
+<%-     target = ENV['STARTER_TARGET'].to_s -%>
+<%-     v = target unless target.empty? -%>
+<%-   else -%>
+<%-     v = v == true ? 'Y' : v == false ? '' : v.to_s -%>
+<%-   end -%>
+<%-   if v =~ /\A[-a-zA-Z0-9!'`*+,.\/:;=?@\[\]()]*\z/ -%>
+\def\starter@<%= k.gsub('_', '@') %>{<%= v %>}
+<%-   end -%>
+<%- end -%>
+\makeatother
+
+
+%% environment values for Starter
+\makeatletter
+<%- ENV.each do |key, val| -%>
+<%-   if key =~ /^STARTER_\w+$/ -%>
+\def\<%= key.gsub('_', '@') %>{<%= val %>}%
+<%-   end -%>
+<%- end -%>
+\makeatother
+
 \usepackage{mytextsize}
 
 <%- if @texcompiler == "uplatex" -%>
@@ -19,7 +45,11 @@
 \usepackage{suffix}
 \usepackage[T1]{fontenc}\usepackage{textcomp}%T1/TS1
 \usepackage{lmodern}
+<%- if ! ENV['STARTER_DRAFT'].to_s.empty? || @config['starter']['draft'] -%>
+\usepackage[dvipdfmx,draft]{graphicx}
+<%- else -%>
 \usepackage[dvipdfmx]{graphicx}
+<%- end -%>
 \usepackage[dvipdfmx,table]{xcolor}%requires colortbl, array
 \usepackage{framed}
 \usepackage{wrapfig}
@@ -257,6 +287,7 @@
     \Gin@nat@width
   \fi
 }
+
 \makeatother
 
 <%- if @config["texstyle"] -%>
@@ -324,7 +355,7 @@
 <%-   end -%>
 <%- end -%>
 
-\renewcommand{\chaptermark}[1]{{}}
+%\renewcommand{\chaptermark}[1]{{}}
 \frontmatter
 
 %%% originaltitle
@@ -345,10 +376,10 @@
 \tableofcontents
 <%- end -%>
 
-\renewcommand{\chaptermark}[1]{\markboth{\prechaptername\thechapter\postchaptername~#1}{}}
+%\renewcommand{\chaptermark}[1]{\markboth{\prechaptername\thechapter\postchaptername~#1}{}}
 \mainmatter
 <%= @input_files["CHAPS"] %>
-\renewcommand{\chaptermark}[1]{\markboth{\appendixname\thechapter~#1}{}}
+%\renewcommand{\chaptermark}[1]{\markboth{\appendixname\thechapter~#1}{}}
 \reviewappendix
 <%= @input_files["APPENDIX"] %>
 

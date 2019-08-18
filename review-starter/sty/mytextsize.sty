@@ -38,9 +38,17 @@
 \addtolength{\oddsidemargin}{-\inv@mag in}   % （謎の呪文）
 \setlength{\evensidemargin}{\oddsidemargin}  % 偶数ページも同じ
 %% 奇数・偶数ページで余白幅を変える場合
-\addtolength{\oddsidemargin}{2zw}   % 奇数ページで2文字分広げる
-\addtolength{\evensidemargin}{-2zw} % 偶数ページで2文字分狭める
+%% （ただし pbook (printing book) の場合だけ）
+\newcommand\if@pbook{         % \starter@target の値が pbook かどうかを調べる
+  \def\@tempa{pbook}
+  \ifx\starter@target\@tempa  % \starter@target は layouts/layout.tex.erb の先頭で定義される
+}
+\if@pbook
+  \addtolength{\oddsidemargin}{2zw}   % 奇数ページで2文字分広げる
+  \addtolength{\evensidemargin}{-2zw} % 偶数ページで2文字分狭める
+\fi
 
 %% 天（ページ上部）の余白を狭め、そのぶん本文の高さに加える
-\addtolength{\topmargin}{-10mm}
-\addtolength{\textheight}{10mm}
+\addtolength{\topmargin}{-11mm}
+\addtolength{\textheight}{11mm}
+\addtolength{\headsep}{1mm}

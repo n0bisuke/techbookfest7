@@ -15,6 +15,7 @@ review_version: 2.0
 # その値がB.ymlよりも優先される。
 # 同様にA.yml、B.yml内でさらにinherit:パラメータを使うこともできる。
 # inherit: ["A.yml", "B.yml"]
+inherit: ["config-starter.yml"]
 
 # ブック名(ファイル名になるもの。ASCII範囲の文字を使用)
 bookname: techbookfest7
@@ -32,8 +33,8 @@ subtitle: |-
 # 著者名。「, 」で区切って複数指定できる
 # 読みを入れる例 aut: [{name: "青木峰郎", file-as: "アオキミネロウ"}, {name: "武藤健志", file-as: "ムトウケンシ"}, {name: "高橋征義", file-as: "タカハシマサヨシ"}, {name: "角征典", file-as: "カドマサノリ"}]
 aut:
-  - name:    LINE Experts
-    file-as: ラインエキスパーツ
+  - name:    LINE API Experts
+    file-as: ラインエーピーアイエキスパーツ
 
 # 以下はオプション
 # 以下はオプション(autと同じように配列書式で複数指定可能)。
@@ -54,7 +55,9 @@ aut:
 # a-cmm, cmm: 解釈・分析・考察者
 # a-csl, csl: 監修者
 # a-dsr, dsr: デザイナ
+dsr: 西村 惟
 # a-edt, edt: 編集者
+edt: 田中みそ
 # a-ill, ill: イラストレータ
 # a-lyr, lyr: 歌詞作成者
 # a-mdc, mdc: メタデータセットの一次的責任者
@@ -64,7 +67,7 @@ aut:
 # a-pht, pht: 撮影責任者
 # a-pbl, pbl: 出版社（発行所）
 # a-prt, prt: 印刷所
-prt: ○○印刷所
+prt: 日光企画様
 # a-red, red: 項目の枠組起草者
 # a-rev, rev: 評論者
 # a-spn, spn: 援助者
@@ -80,9 +83,9 @@ date: 2019-09-22
 # 日付の後ろを空白文字で区切り、任意の文字列を置くことも可能。
 history: [["2019-09-22 ver 1.0"]]
 # [experimental] 新刊を頒布したイベント名（例：「技術書典6（2019年春）新刊」）
-pubevent_name: 技術書典7
+pubevent_name: 技術書典7（2019年秋）新刊
 # 権利表記(配列で複数指定可)
-rights: (C) 2019 LINE Experts
+rights: (C) 2019 LINE API Experts
 # description: 説明
 # subject: 短い説明用タグ(配列で複数指定可)
 # type: 書籍のカテゴリーなど(配列で複数指定可)
@@ -92,7 +95,7 @@ rights: (C) 2019 LINE Experts
 # coverage: 内容の範囲や領域(配列で複数指定可)
 
 # デバッグフラグ。nullでないときには一時ファイルをカレントディレクトリに作成し、削除もしない
-debug: true
+debug: false
 
 # 固有IDに使用するドメイン。指定しない場合には、時刻に基づくランダムUUIDが入る
 # urnid: urn:uid:http://example.com/book-title/
@@ -113,13 +116,13 @@ stylesheet: ["style.css"]
 # htmlversion: 4
 
 # 目次として抽出する見出しレベル
-toclevel: 3               # （部と）章と節と小節を目次に載せる
+toclevel: 3               # （部と）章と節と項（小節）を目次に載せる
 
 # 採番の設定。採番させたくない見出しには「==[nonum]」のようにnonum指定をする
 #
 # 本文でセクション番号を表示する見出しレベル
-#secnolevel: 2             # 章 (chapter) と節 (section) にだけ番号をつける
-secnolevel: 3              # 小節 (subsection) にも番号をつける
+#secnolevel: 2             # 章 (Chapter) と節 (Section) にだけ番号をつける
+secnolevel: 3              # 項 (Subsection) にも番号をつける
 
 # 以下のsecnolevelはまだ未実装。
 # 前付でセクション番号を表示する見出しレベル(未実装)
@@ -142,7 +145,7 @@ toc: true
 # cover: null
 #
 # 表紙に配置し、書籍の影絵にも利用する画像ファイル。省略した場合はnull (画像を使わない)。画像ディレクトリ内に置いてもディレクトリ名は不要(例: cover.jpg)
-coverimage: cover.jpg
+#coverimage: cover.jpg
 #
 # 表紙の後に大扉ページを作成するか。省略した場合はtrue (作成する)
 titlepage: true
@@ -296,7 +299,7 @@ texdocumentclass: ["jsbook",
     #"uplatex,papersize,twoside,a5j,9pt,openright"  # A5  9pt 右起こし
     #"uplatex,papersize,twoside,a5j,9pt,openany"    # A5  9pt 両起こし
     #"uplatex,papersize,oneside,a5j,10pt,openany"   # A5 10pt 両起こし（タブレット向け）
-    "uplatex,papersize,twoside,b5j,10pt,openright"
+    "uplatex,papersize,twoside,b5j,10pt,openany"
 ]
 #
 # LaTeX用のコマンドを指定する
