@@ -1,38 +1,123 @@
-# LINE Pay API を使って決済に対応したBot を開発する
+# LINE Pay での決済とLINE Things に対応したドリンクバーのプロトタイプを開発する
 
-最近は『○○Pay』 がたくさん登場し、いよいよキャッシュレス決済時代が到来しそうな勢いです。
+最近は『○○Pay』 がたくさん登場し、大規模なポイントバックキャンペーンが展開されたり、一部のキャッシュレス決済サービスがサービス開始早々にセキュリティ問題が発覚してサービス終了になったりと、良い意味でも悪い意味でも話題になったこともあり、一般消費者にもキャッシュレス決済が認知されてきました。
 
-キャッシュレス決済が一般に認知され、決済のAPI が公開されているのであれば、我々個人開発者も自分のサービスに決済機能を付けて、一儲けとまでは行かなくても運用費＋お小遣いくらいは稼げるのではないか、ということでAPI が公開されているLINE Pay API を個人開発のLINE Bot に組み込んでみました。
+キャッシュレス決済が一般に認知され、決済のAPI が公開されているのであれば、我々個人開発者も自分のサービスに決済機能を付けて、一儲けとまでは行かなくても運用費＋お小遣いくらいは稼げるのではないか、ということでAPI が公開されているLINE Pay API と、LINE アプリからハードウェアを操作できるLINE Things、LINE Bot などを開発できるLINE Messaging API を使ったプロトタイプ「LINE Things Drink Bar」を開発しました。
 
-## どんなBot か？
 
-地元で子ども向けのプログラミング教室を個人運営しています。
+## LINE Things Drink Bar とは
 
-単発のイベントの場合、受付で当日の参加費を頂くのですが、個人で運営しているので受付と参加費の受け取りとお釣りを返す作業が非常に面倒です。
-参加費も大体が500円／回とワンコインということもあり1000円札で支払いされる方も多く、事前にお釣りを用意しておくことも地味に面倒です…
+「LINE Things Drink Bar」は、LINE Pay での決済機能と、LINE アプリからハードウェアを操作できるIoT プラットフォームであるLINE Things に対応した自動販売機のプロトタイプです。
+いわゆるカップ式自動販売機で、商品（ジュース）選択から支払い（LINE Pay での決済）、ハードウェアへのジュース抽出の指示、購入後の抽選に至る全てを日常で頻繁に使うLINE アプリ一つで操作することができます。
 
-また、参加者の保護者も未就学児の小さなお子さんを連れているケースも多いのでお釣りをもらうのも手間であったりしますし、中にはお釣りが出ないようにと硬貨を事前準備される方も多いので、その負担もあります。
+ここまでの話だけでは自動販売機の操作をLINE アプリで出来るようにしただけではないか、と思われるかもしれませんが、LINE 対応することでユーザー個々を識別できる（LINE の各API ではユーザー固有の識別子 *userId* が利用できる）ます。
+つまり、ユーザー単位で、いつ・どの商品を、どの自動販売機で購入した（または購入しなかった）かなどが把握できることになります。従来の自動販売機では取得できなかったユーザー単位の情報が取得できることで、ユーザー個別に販売促進（おすすめ）なども行えるようになります。
 
-そんなところから、参加者にキャッシュレス決済してもらえれば、先方も現金を用意する手間が省け、運営側も参加登録と現金授受がスムーズに出来ると考え、イベントの受付や小規模な物販などで利用できるBot を開発しています。
+LINE Pay とLINE Things などを組み合わせることで、これまでネットサービス以外では把握が難しかったユーザー単位での利用状況が、自動販売機だけでなく色んな場面で把握できるようになるため、ユーザーの利用状況を踏まえたサービスを展開することも可能になります。
 
-今回は小規模な物販をイメージしたBot をサンプル実装してみました。
-イベントの参加者管理＆決済であれば、商品の代わりに参加者と参加費を登録すれば対応できる思います。
-
-なお、今回記事に掲載する内容はLINE Pay API を使った実装の解説を主眼にしたサンプル実装です。
+なお、今回掲載する内容はLINE Pay API を使った実装の解説を主眼にしたプロトタイプです。
 実際のサービスとしてリリースするには、商品の在庫管理や認証や認可などに関する考慮・実装が必要となりますので、ご承知おきください。
 
-### Bot を利用した決済までの流れ
+![LINE Things Drink Bar](images/chapxx-sumihiro3/LineThingsDrinkBarOverview.png)
 
-ストア運営者と購入者（LINE Pay で決済する人）で同じBot を使います。（ストア運営者と購入者では使える機能が異なる）
 
-1. ストア運営者がBot で販売する商品や参加者を選択する
-2. ストア運営者のBot に商品に応じたQRコードを表示する
-3. 購入者はBotのリッチメニューから、ストア運営者のQRコードリーダーを起動して、QRコードを読み込む
-4. LINE Pay 決済画面で内容を確認して決済を実行する
+## システム構成
 
-## LINE Pay 導入までの流れ
+ここまでは事務的な作業でしたが、ココから本筋の開発に関する内容です。
 
-LINE Pay を導入するための作業は以下のとおりです。
+システム構成は下図のようになっています。
+LINE Messaging API やLINE Pay API との連携はheroku 上に構築したサーバーを介して行います。
+LINE アプリ上で実行されるウェブアプリケーションはLINE Front-end Framework（以下、LIFF）として実行されます。LIFF としてウェブアプリケーションが実行されることで、操作するLINE ユーザーを一意に識別できる *userId* や表示名などを取得できるようになります。
+
+![LINE Things Drink Bar システム構成図](images/chapxx-sumihiro3/SystemOverview.png)
+
+フロントサイドはVue.js 、サーバーサイドはウェブアプリケーション フレームワークのFlask で実装します。
+商品情報の取得や注文情報の登録はサーバーサイドで提供するAPI をフロントからaxios モジュールを利用して実行するという構成になっています。
+
+### サーバーサイドの構成
+
+- heroku
+    - Docker
+    - Python
+        - Flask
+        - SQL Alchemy 
+        - Requests
+    - Heroku Postgres
+        - PostgreSQL をheroku アプリケーションから利用できるheroku のアドオン
+            - 無料枠あり
+    - QuotaGuard Static
+        - 固定IPで外部アクセスするためのプロキシ を利用できるheroku のアドオン
+            - 無料枠あり
+            - LINE Pay API アクセス時に固定IPアドレスが必要なため
+            - なお、LINE Pay API Sandbox 環境では固定IP は必須ではない
+- LINE Messaging API
+    - LINE Messaging API 用SDK のPython版
+- LINE Pay API
+    - LINE Pay API のSandbox 環境
+
+### フロントサイドの構成
+
+- Vue.js
+    - Vuetify
+        - Vue.js でマテリアルデザインのコンポーネントを簡単に使えるコンポーネントフレームワーク
+- LIFF (LINE Front-end Framework)
+    - LINE アプリ内で動作するウェブアプリのプラットフォーム
+- LINE Things
+    - LINE アプリを介して、チャネルとBluetooth® Low Energy 対応デバイスを連携し、操作を可能にするIoT プラットフォーム
+
+### ソースコード
+
+LINE Things Drink Bar で使用しているソースコードは、本書では紙面の都合によりすべて掲載できませんので、Github のリポジトリで公開しています。
+本書と合わせて確認してください。
+
+- LINE Things Drink Bar のソースコード
+    - https://github.com/line-developer-community/techbookfest7
+
+
+## LINE Pay APIを使った決済の流れ
+
+LINE Pay での決済には3つの登場人物が存在します。一つ目は **サービスプロバイダー** です。これは有償で商品またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。本書ではLINE Things Drink Bar が相当します。
+二つ目は その商品またはサービスを購入する **ユーザー** です。
+そして三つ目は **LINE Pay**です。サービスプロバイダーはLINE PayのAPIに、ユーザーはLINE Payのアプリにアクセスして下記の流れで決済をおこなうことになります。
+
+![LINE Pay API 概要図](images/chapxx-sumihiro3/LINEPayAPIOverview.png)
+
+- SP = サービスプロバイダー
+
+以下では決済の処理内容について説明します。
+
+### 決済予約
+
+サービスプロバイダーは商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得します。
+
+### ユーザーによる承認
+
+取得した決済URLをユーザーに提供し、ユーザーが決済URLに進みます。LINE Payが起動して商品と金額が表示され、ユーザーはその情報を確認の上、決済承認をおこないます。
+
+### 決済実行
+
+ユーザーが承認すると、任意のURLへのリダイレクトまたは任意のURLへのPOSTリクエストにてサービスプロバイダーに通知されます。その時点で決済を実行できる状態となっていますので、あとは決済実行のAPI（Confirm API）にアクセスすれば決済完了となります。
+
+
+## LINE Things Drink Bar での購入・決済の流れ
+
+ユーザーはLINE アプリで次のような操作をしてドリンクを購入します。
+
+1. 自動販売機の近くでLINE アプリを起動する
+2. 購入する商品（ドリンク）を選択する
+3. 注文情報を登録し決済予約を行う
+4. LINE Pay 決済画面で購入内容を確認して決済を実行する
+5. 決済完了後にドリンク抽出画面を確認する
+6. 抽選ボタンを押下して購入後のお楽しみ抽選を行う
+
+<<<<<<<< LINE Things Drink Bar 画面遷移図 >>>>>>>>
+![LINE Things Drink Bar での購入・決済の流れ](images/chapxx-sumihiro3/LineThingsDrinkBarFlow.png)
+
+
+## LINE Pay 導入
+
+ここからはLINE Pay を開発するサービスで導入するための作業について説明します。
+作業の流れは以下のとおりです。
 
 1. 加盟店申請
 2. LINE Pay Sandbox での開発
@@ -67,10 +152,9 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 
 特別なものはありませんね。それではいよいよ加盟店申請です。
 
-![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/01_LINEPayAppForMenber.png =1280x)
+![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/LINEPayAppForMenber.png =1280x)
 
 [LINE Pay 加盟店申請ページ](https://pay.line.me/jp/intro?locale=ja_JP)ページ（リンク先の右上赤枠部分）にアクセスしてください。
-
 
 #### 加盟店申請
 
@@ -79,7 +163,7 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 - 事業種別：個人事業主
 - 支払い方法：オンライン
 
-![LINE Pay 加盟店申請](images/chapxx-sumihiro3/02_LINEPayAppForMember.png)
+![LINE Pay 加盟店申請](images/chapxx-sumihiro3/LINEPayAppForMember.png)
 
 あとは、規約を読んで同意し、必要書類をスキャンしてPDF 形式などにして、スキャンしたファイルを申請ページから必要事項の記入とともにアップロードするだけです。
 
@@ -88,84 +172,23 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 申請書類の不備などが二度ありましたが、約2週間で審査完了しました。審査がスムーズなのも時間がない個人としては嬉しいところです。
 
 審査が完了すると、下のようなメールが届きます。
-![加盟店審査完了メール](images/chapxx-sumihiro3/03_ReviewCompleted.png)
-
-
-
-## LINE Pay APIを使った決済の流れ
-
-3つの登場人物が存在します。一つ目は **サービスプロバイダー** です。これは有償で商品またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。二つ目は その商品またはサービスを購入する **ユーザー** です。そして三つ目は **LINE Pay**です。サービスプロバイダーはLINE PayのAPIに、ユーザーはLINE Payのアプリにアクセスして下記の流れで決済をおこなうことになります。
-
-![LINE Pay API 概要図](images/chapxx-sumihiro3/04_LINEPayAPIOverview.png)
-- SP = サービスプロバイダー
-
-
-
-#### 決済予約
-
-サービスプロバイダーは商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得します。
-
-#### ユーザーによる承認
-
-取得した決済URLをユーザーに提供し、ユーザーが決済URLに進みます。LINE Payが起動して商品と金額が表示され、ユーザーはその情報を確認の上、決済承認をおこないます。
-
-#### 決済実行
-
-ユーザーが承認すると、任意のURLへのリダイレクトまたは任意のURLへのPOSTリクエストにてサービスプロバイダーに通知されます。その時点で決済を実行できる状態となっていますので、あとは決済実行のAPI（Confirm API）にアクセスすれば決済完了となります。
-
-
-
-### システム構成
-
-ここまでは事務的な作業でしたが、ココから本筋の開発に関する内容です。
-
-まずはシステム構成から。
-
-#### サーバー
-
-- heroku
-    - Docker
-    - Python
-        - Flask
-        - SQL Alchemy 
-        - Requests
-    - Heroku Postgres
-        - heroku のアドオン。無料枠あり
-    - QuotaGuard Static
-        - heroku のアドオン。無料枠あり
-        - 固定IPで外部アクセスするためのプロキシ
-            - LINE Pay API アクセス時に固定IPアドレスが必要なため
-            - LINE Pay API Sandbox 環境では不要
-- LINE Messaging API
-    - LINE Messaging API 用SDK
-        - [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
-- LINE Pay API
-    - [Sandbox 環境](https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP)
-
-
-#### フロント
-
-- Vue.js
-    - Vuetify
-        - Vue.js でマテリアルデザインのコンポーネントを簡単に使えるコンポーネントフレームワーク
-    - vue-qriously
-        - Vue.js でQRコードを表示するライブラリ
+![加盟店審査完了メール](images/chapxx-sumihiro3/ReviewCompleted.png)
 
 ### LINE Pay Sandboxの申請と設定
 
-実際に決済するには加盟店登録が必要ですが、開発して動作を確認するフェーズであればSandboxが利用できます。こちらは下記のURLから申請すると払い出されるLINE Pay API用のアカウントで、誰でもすぐに利用できます。
+実際に決済するには加盟店登録が必要ですが、開発して動作を確認するフェーズであればSandbox が利用できます。こちらは下記のURLから申請すると払い出されるLINE Pay API用のアカウントで、誰でもすぐに利用できます。
 
 https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP
 
-アカウントが払い出されたらLINE Payコンソールの決済連動管理 > 連動キー管理からChannel IDとChannel Secret Keyを確認します。これらの値はLINE PayのAPIコールに必要になります。
-![連動キー管理](images/chapxx-sumihiro3/05_LinkKey.png)
+アカウントが払い出されたらLINE Payコンソールの決済連動管理 > 連動キー管理からChannel ID とChannel Secret Key を確認します。これらの値はLINE Pay のAPI コールに必要になります。
+![連動キー管理](images/chapxx-sumihiro3/LinkKey.png)
 
 
-### 開発
+## 開発
 
-#### サーバー（heroku）の準備
+### サーバー（heroku）の準備
 
-##### heroku CLI のインストール
+#### heroku CLI のインストール
 
 [heroku](https://jp.heroku.com/) に登録し、ターミナルなどのCLI から操作できるheroku CLI をインストールします。
 Mac で開発する場合はbrew を使ってインストールできます。
@@ -174,7 +197,7 @@ Mac で開発する場合はbrew を使ってインストールできます。
 $ brew tap heroku/brew && brew install heroku
 ```
 
-##### アプリケーションの作成
+#### アプリケーションの作成
 
 ここからheroku CLI を使ってアプリケーションの登録などをしていきます。
 
@@ -198,9 +221,9 @@ Creating ⬢ {YOUR_APP_NAME}... done
 https://{YOUR_APP_NAME}.herokuapp.com/ | https://git.heroku.com/{YOUR_APP_NAME}.git
 ```
 
-##### データベースの登録
+#### データベースの登録
 
-heroku CLI で登録します。
+heroku CLI でHeroku Postgres のデータベース登録します。
 
 ```bash
 $ heroku addons:create heroku-postgresql:hobby-dev -a {YOUR_APP_NAME}
@@ -212,11 +235,9 @@ Created postgresql-reticulated-xxxxx as DATABASE_URL
 Use heroku addons:docs heroku-postgresql to view documentation
 ```
 
+#### 固定IPでのアクセス用プロキシの登録
 
-
-##### 固定IPでのアクセス用プロキシの登録
-
-heroku CLI で登録します。
+heroku CLI でQuotaGuard Static の固定IPでのアクセス用プロキシを設定します。
 
 ```bash
 $ heroku addons:create quotaguardstatic:starter -a {YOUR_APP_NAME}
@@ -226,25 +247,21 @@ Created quotaguardstatic-clean-xxxxx as QUOTAGUARDSTATIC_URL
 Use heroku addons:docs quotaguardstatic to view documentation
 ```
 
-環境変数「QUOTAGUARDSTATIC_URL」にプロキシの設定が自動で設定されます。
+環境変数「QUOTAGUARDSTATIC_URL」にプロキシURL が自動で設定されます。
 
 
-#### コンテナの準備
+### コンテナの準備
 
-今回はheroku にはDocker を使ってコンテナでデプロイします。こちらの記事を参考にさせていただきました。
+heroku にはDocker を使ってコンテナでウェブアプリケーションをデプロイします。
 
-- [FlaskアプリケーションをHeroku上のDockerで起動](https://qiita.com/nanakenashi/items/d3572989d76a651262b5)
-- [Heroku で Docker を使う場合の諸注意](https://qiita.com/sho7650/items/9654377a8fc2d4db236d)
+#### Dockerfile
 
-
-
-##### Dockerfile
-
-コンテナのビルド時に以下のことをやっています。
+コンテナのビルド時に実行する処理をDockerfile で設定します。
 
 - Python からPostgreSQL を使うために関連のモジュールをインストール
-- 「requirements.txt」に記載したPython プログラムで使うライブラリをインストール
+- 「requirements.txt」に記載したサーバーサイドのPython プログラムで使うライブラリをインストール
 - プログラムのコードもコンテナ内にコピー
+- ウェブアプリケーションを起動
 
 ```
 FROM python:3.6-alpine
@@ -264,16 +281,15 @@ WORKDIR /app
 
 # Run the app.  CMD is required to run on Heroku
 ENV FLASK_APP /app/main.py
-CMD flask run -h 0.0.0.0 -p $PORT
+CMD flask run -h 0.0.0.0 -p $PORT --debugger --reload
 ```
 
-##### requirements.txt
+#### requirements.txt
 
 Python プログラムで使うライブラリはrequirements.txt に定義します。
 
-データベース（PostgreSQL）へのアクセス用に「psycopg2」、ORマッパーとして「SQLAlchemy」を使っています。
-
-LINE Pay API への接続には「requests」を利用します。
+ウェブアプリケーション フレームワークに「Flask」、データベース（PostgreSQL）へのアクセス用に「psycopg2」、ORマッパーとして「SQLAlchemy」を使っています。
+また、LINE Pay API や、Flask で構築するウェブアプリケーションのAPI への接続には「requests」を利用します。
 
 ```
 flask
@@ -285,276 +301,140 @@ requests
 line-bot-sdk
 ```
 
-#### ストア運営者が利用する機能・画面
+### 商品選択画面
 
-ストア運営者が利用する商品選択〜決済用QRコード表示〜決済確認の画面・機能です。簡単に言うと店舗にあるレジの役割です。
+ユーザーが操作して商品を選択する画面です。
 
-##### 商品選択画面
-
-ストア運営者が操作する商品選択画面です。
-
-商品選択画面はVue.js で作成しています。今回の解説では画面数も少ないのでコンポーネント化はせずに、HTMLベースで作っています。また、この画面をLIFF として登録しておきます。
+商品選択画面をはじめフロント側はVue.js で作成しています。今回の解説では画面数も少ないのでコンポーネント化はせずに、HTML ファイルベースで開発します。また、この画面をLIFF として登録しておきます。
 
 この画面で出来ることは以下のとおりです。
 
-- 商品一覧を表示して選択する
-- 注文登録後は購入者が読み取るQRコード（後述する決済開始画面のLIFF URL＋注文番号）を表示する
-- 購入者が決済完了したかを確認する（追加実装予定）
+- ドリンク一覧を表示する
+- 選択した商品を基に注文情報を登録する
+- LINE Pay 決済画面へ遷移する
+- LINE Things Drink Bar を制御する
 
-###### 画面表示
+### ドリンク一覧の表示
 
-ここではFlask のテンプレートエンジン（Jinja2）で商品選択画面のHTML ファイル（purchase_order.html）を返します。
+LINE アプリから商品選択画面のLIFF URL を選択するとFlask の下記URL にGET リクエストが送られます。
+
+このリクエストを受けたFlask のプログラム（main.py）がテンプレートエンジン（Jinja2）で商品選択画面のHTML ファイル（drink_bar.html）を返します。
 
 ```python
-@app.route('/purchase_order', methods=['GET'])
-def get_purchase_order():
+@app.route('/drink_bar', methods=['GET'])
+def get_drink_bar():
+    app.logger.info('handler get_drink_bar called!')
     return render_template(
-        'purchase_order.html'
+        'drink_bar.html',
     )
 ```
 
-###### HTML（purchase_order.html）
+#### HTML ファイル（drink_bar.html）
 
-QRコードの表示には、Vue.js 用のQRコード関連ライブラリ「vue-qriously」を使っています。とても簡単にQRコードを表示できるので色んな場面で使えそうです。
+商品選択画面のHTML ファイルです。
+ドリンク一覧や、選択したドリンクの詳細と決済へ進むボタン、ドリンクの抽出状況などを表示します。
+それぞれの表示は処理のステータスを示す *flow_status* の状態に応じて切り替えています。
+
+下記では、ドリンク一覧を表示する部分について抜粋しています。
 
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div id="app">
-        <template id="purchase_order">
-            <v-layout row>
-<!--    API is loading...     -->
-                <v-container fluid v-if="api_loading === true">
-                    <v-layout >
-                        <v-flex xs12>
-                            <div class="resultContainer" >
-                                <v-layout align-center justify-center fill-height>
-                                    <v-progress-circular
-                                            :size="70"
-                                            :width="7"
-                                            color="green"
-                                            indeterminate
-                                    ></v-progress-circular>
+<!--    No order - Item list     -->
+<v-container fluid v-else-if="flow_status === 'INITIAL'">
+    <v-layout>
+        <v-flex xs12>
+            <v-toolbar color="green darken-2" dark>
+                <v-toolbar-title>LINE Things Drink Bar</v-toolbar-title>
+            </v-toolbar>
+            <!-- items -->
+            <v-card>
+                <v-container
+                        fluid
+                        grid-list-lg
+                >
+                    <v-layout row wrap>
+                        <v-flex xs12 v-for="(item, index) in items">
+                            <v-card color="brown lighten-5" class="black--text">
+                                <v-layout pt-1>
+                                    <v-flex xs5>
+                                        <v-img
+                                                :src="item.image_url"
+                                                height="125px"
+                                                contain
+                                        ></v-img>
+                                    </v-flex>
+                                    <v-flex xs7>
+                                        <v-card-title primary-title>
+                                            <div>
+                                                <div><h4 class="pb-1">[[ item.name ]]</h4></div>
+                                                <div><h6 class="pb-2">[[ item.description ]]</h6></div>
+                                                <div><h4 class="green--text">[[ item.unit_price ]] 円</h4></div>
+                                            </div>
+                                        </v-card-title>
+                                    </v-flex>
                                 </v-layout>
-                            </div>
+                                <v-divider light></v-divider>
+                                <v-card-actions class="pa-3">
+                                    <v-btn
+                                            @click="orderItem(item.id)"
+                                            class="white--text"
+                                            color="brown" block>
+                                        Order
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-flex>
                     </v-layout>
                 </v-container>
-<!--    show QR-code for order     -->
-                <v-flex v-else-if="payment_transaction_done === false && order_id != null"
-                        xs12 sm6 offset-sm3
-                >
-                    <v-card>
-                        <v-toolbar color="light-blue" dark>
-                            <v-toolbar-title>決済用QRコード</v-toolbar-title>
-                        </v-toolbar>
-                        <v-card-title primary-title>
-                            <div class="center">
-                                <qriously :value="'line://app/<LIFF_ID>?oid=' + order_id" :size="200" class="center" />
-                            </div>
-                        </v-card-title>
-                        <v-card-text>
-                            <div class="center">
-                                <h3 class="headline mb-0">[[ order_title ]]</h3>
-                                <h4 class="headline mb-0">支払い金額：[[ order_amount ]]円</h4>
-                            </div>
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-container fill-height fluid>
-                                <v-btn
-                                        @click=""
-                                        block
-                                        :loading="api_loading"
-                                        :disabled="payment_transaction_done === true"
-                                        color="indigo"
-                                        class="center"
-                                >
-                                    決済を確認する
-                                </v-btn>
-                            </v-container>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
-<!--    show done button     -->
-                <v-flex v-else-if="payment_transaction_done === true && order_id != null"
-                        xs12 sm6 offset-sm3
-                >
-                    <v-card>
-                        <v-toolbar color="light-blue" dark>
-                            <v-toolbar-title>決済が完了しました</v-toolbar-title>
-                        </v-toolbar>
-                        <v-card-actions>
-                            <v-container fill-height fluid>
-                                <v-btn
-                                        @click="closeLiffWindow"
-                                        block
-                                        :loading="api_loading"
-                                        color="indigo"
-                                        class="center"
-                                >
-                                    完了
-                                </v-btn>
-                            </v-container>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
-<!--    collect order items     -->
-                <v-flex v-else
-                        xs12 sm6 offset-sm3
-                >
-                    <v-card>
-                        <v-toolbar color="light-blue" dark>
-                            <v-toolbar-title>商品を選択してください</v-toolbar-title>
-                        </v-toolbar>
-                        <v-list
-                                subheader
-                                three-line
-                        >
-                            <v-list-tile
-                                    v-for="(item, index) in items"
-                                    :key="item.title"
-                                    avatar
-                                    @click="toggle_order_items(index)"
-                            >
-                                <v-list-tile-avatar>
-                                    <img :src="item.image_url">
-                                </v-list-tile-avatar>
-
-                                <v-list-tile-content>
-                                    <v-list-tile-title v-text="item.name"></v-list-tile-title>
-                                    <v-list-tile-sub-title>[[ item.description ]]</v-list-tile-sub-title>
-                                </v-list-tile-content>
-
-                                <v-list-tile-action>
-                                    <v-list-tile-action-text>[[ item.unit_price ]] 円</v-list-tile-action-text>
-                                    <v-icon
-                                            v-if="order_items.indexOf(index) < 0"
-                                            color="grey lighten-1"
-                                    >
-                                        check_box_outline_blank
-                                    </v-icon>
-
-                                    <v-icon
-                                            v-else
-                                            color="yellow darken-2"
-                                    >
-                                        check_box
-                                    </v-icon>
-                                </v-list-tile-action>
-                                <v-divider></v-divider>
-                            </v-list-tile>
-                        </v-list>
-                        <v-card-actions>
-                            <v-container fill-height fluid>
-                                <v-btn
-                                        @click="orderPurchaseItems()"
-                                        block
-                                        :loading="api_loading"
-                                        :disabled="order_items.length === 0"
-                                        color="indigo"
-                                        class="center">
-                                    注文する
-                                </v-btn>
-                            </v-container>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
-            </v-layout>
-        </template>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="{{ url_for('static', filename='vconsole.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='purchase_order.js') }}"></script>
-    <script src="{{ url_for('static', filename='vue-qriously.js') }}"></script>
-</body>
-</html>
+            </v-card>
+        </v-flex>
+    </v-layout>
+</v-container>
 ```
 
-###### JavaScript（purchase_order.js）
+#### 商品情報の取得処理
 
-axios を使ってサーバーサイドのAPIの実行したり、商品選択用トグル機能を提供したりしています。
+商品選択画面で表示する商品情報をサーバーサイドから取得します。
+画面の初期化時にaxios を利用して、サーバーサイドで提供される商品情報取得APIを実行します。
+
+下記では、商品情報取得API の実行部分（drink_bar.js）について抜粋しています。
 
 ```javascript
-  async getItems() {
-      // 商品取得
-      this.api_loading = true
-      const api_url = '/api/items'
-      const response = await axios.get(api_url).catch(error => {
-          console.error('API getItems failed...')
-          console.error(error)
-          this.api_result = null
-          this.api_loading = false
-      })
-      console.log('API response: ', response)
-      this.api_loading = false
-      this.api_result = response.data
-      this.items = this.api_result.items
-  },
-  toggle_order_items (index) {
-      // 商品選択
-      const i = this.order_items.indexOf(index)
-      if (i > -1) {
-          this.order_items.splice(i, 1)
-      } else {
-          this.order_items.push(index)
-      }
-  },
-  async orderPurchaseItems() {
-      // 注文登録
-      this.api_loading = true
-      // collect order items
-      let order_item_ids = []
-      for (let i = 0; i < this.order_items.length; i++) {
-          let item_index = this.order_items[i]
-          let item = this.items[item_index]
-          order_item_ids.push(item['id'])
-      }
-      // Order!
-      const params = {
-          user_id: this.line_user_id,
-          order_items: order_item_ids
-      }
-      const url = '/api/purchase_order'
-      console.log('API URL:', url)
-      const response = await axios.post(url, params).catch(function (err) {
-          this.api_loading = false
-          console.error('API POST orderPurchaseItems failed', err)
-          throw err
-      })
-      this.api_loading = false
-      console.log('Response: ', response)
-      this.api_result = response.data
-      this.order_id = this.api_result.order_id
-      this.order_title = this.api_result.order_title
-      this.order_amount = this.api_result.order_amount
-      this.payment_transaction_done = false
+getItems: async function() {
+    console.log('function getItems called!')
+    // Item 取得
+    this.api_loading = true
+    const api_url = '/api/items'
+    const response = await axios.get(api_url).catch(error => {
+        console.error('API getItems failed...')
+        console.error(error)
+        this.api_result = null
+        this.api_loading = false
+    })
+    console.log('API response: ', response)
+    this.api_result = response.data
+    this.items = this.api_result.items
+    this.api_loading = false
 },
-
 ```
 
-ちなみに、LIFF 開発でデバッグなどに利用できる便利なツール「vConsole」があります。導入方法などは[こちら](https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb)の記事を参照してください。
+サーバーサイドで提供される商品情報取得API を実行し、取得した商品情報をVue.js の表示用変数に割り当てます。
+
+なお、LIFF 開発でデバッグなどに利用できる便利なツール「vConsole」があります。導入方法などは下記URL の記事を参照してください。
+
+- https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb
 
 
-##### 商品情報取得API
+#### 商品情報取得API
 
-テンプレートだけでは商品情報を表示できないので、別途商品情報をフロントから取得するAPIを設けます。
-
-SQLAlchemy を使ってデータベースから商品情報を取得して返しています。
+商品選択画面のスクリプト（drink_bar.js）から呼び出される商品情報取得API です。
+サーバーサイドではSQLAlchemy を使ってデータベースから商品情報を取得して返しています。
 
 ```python
 @app.route('/api/items', methods=['GET'])
 def get_items():
+    app.logger.info('handler get_items called!')
     item_list = Item.query.filter(Item.active == True).all()
+    app.logger.debug(item_list)
     items = []
     for i in item_list:
         item = {
@@ -565,46 +445,103 @@ def get_items():
             'stock': i.stock,
             'image_url': i.image_url
         }
+        app.logger.debug(item)
         items.append(item)
     # return items
+    app.logger.debug(items)
     return jsonify({
         'items': items
     })
 ```
 
+#### 画面表示
+
+フロントサイドから正常に商品情報取得API を実行できると、下図のようなドリンク一覧が表示されます。
+
+![ドリンク一覧](images/chapxx-sumihiro3/ItemList.png)
+
+### 注文情報の登録
+
+ドリンク一覧で選択したドリンクを基に注文情報を登録します。
+
+#### 注文情報の登録処理
+
+選択したドリンクを基にサーバーサイドへ注文情報の登録をリクエストします。
+axios を利用して、サーバーサイドで提供される注文情報登録API を実行します。
+
+下記では、注文情報登録API の実行部分（drink_bar.js）について抜粋しています。
+
+```javascript
+orderItem: async function(item_id) {
+    console.log('function orderItem called!')
+    // 注文登録
+    this.api_loading = true
+    let order_item_ids = [item_id]
+    // Order!
+    const params = {
+        user_id: this.line_user_id,
+        order_items: order_item_ids
+    }
+    const url = '/api/purchase_order'
+    const response = await axios.post(url, params).catch(function (err) {
+        this.api_loading = false
+        console.error('API POST PurchaseOrder failed', err)
+        this.flow_status = 'INITIAL'
+        throw err
+    })
+    console.log('Response: ', response)
+    this.api_result = response.data
+    this.order.id = this.api_result.order_id
+    this.order.title = this.api_result.order_title
+    this.order.amount = this.api_result.order_amount
+    this.order.slot = this.api_result.order_item_slot
+    this.order.ordered_item_image_url = this.api_result.ordered_item_image_url
+    this.flow_status = 'ORDERED'
+    this.api_loading = false
+},
+```
+
+サーバーサイドで提供される注文情報登録API を実行し、取得した注文情報をVue.js の表示用変数に割り当てます。
 
 
-##### 注文受付API
+#### 注文情報登録API
 
-商品選択画面で選択された商品を基に注文情報を生成してデータベースに登録します。
-
-なお、LINE Pay での決済では注文IDが重複不可のため、一意なIDを生成しておく必要があります。
+商品選択画面のスクリプト（drink_bar.js）から呼び出される注文情報登録API です。
 
 ```python
 @app.route('/api/purchase_order', methods=['POST'])
 def post_purchase_order():
+    app.logger.info('handler post_purchase_order called!')
+    app.logger.debug('Request json: %s', request.json)
     request_dict = request.json
+    user_id = request_dict.get('user_id', None)
+    user = User.query.filter(User.id == user_id).first()
+    # ユーザーが登録されていなければ新規登録
+    if user is None:
+        user = add_user(user_id)
     order_items = request_dict.get('order_items', [])
     order_item_list = Item.query.filter(Item.id.in_(order_items))
-    # order!
-    order = add_purchase_order(order_item_list)
-    # return order
+    app.logger.debug('order_item_list: %s', order_item_list)
+    # order !
+    order = add_purchase_order(user, order_item_list)
+    ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
+    # return
     return jsonify({
         'order_id': order.id,
         'order_title': order.title,
-        'order_amount': order.amount
+        'order_amount': order.amount,
+        'order_item_slot': ordered_item.slot,
+        'ordered_item_image_url': ordered_item.image_url
     })
+```
 
+データベースに注文情報を登録する部分はadd_purchase_order 関数で行います。
+なお、LINE Pay での決済では注文IDが重複不可のため、一意なIDを生成しておく必要があります。
 
-def add_purchase_order(order_items):
-    """
-    注文情報を生成する
-    :param order_items:
-    :type order_items: list
-    :return: purchase order
-    :rtype: PurchaseOrder
-    """
-    # 一意な注文IDを生成
+```python
+def add_purchase_order(user, order_items):
+    app.logger.info('add_purchase_order called!')
+    # 一意な注文IDを生成する
     order_id = uuid.uuid4().hex
     timestamp = int(dt.now().timestamp())
     details = []
@@ -620,330 +557,189 @@ def add_purchase_order(order_items):
         db.session.add(detail)
         details.append(detail)
         amount = amount + detail.amount
-    # generate PurchaseOrder
+    # 注文情報をDBに登録する
     order_title = details[0].item.name
     if len(details) > 1:
         order_title = '{} 他'.format(order_title)
     order = PurchaseOrder(order_id, order_title, amount)
+    order.user_id = user.id
     order.details.extend(details)
     db.session.add(order)
     db.session.commit()
     return order
 ```
 
-##### 実装した商品選択画面
+#### 注文情報の表示
 
-画像のように商品を選択して注文するボタンが配置された画面となります。
+フロントサイドから正常に注文情報登録API を実行できると、下図のような注文情報が表示されます。
 
-![商品選択画面](images/chapxx-sumihiro3/06_ProductSelectionScreen.png)
+![注文情報](images/chapxx-sumihiro3/PurchaseOrder.png)
 
-![商品選択画面ボタン](images/chapxx-sumihiro3/07_ProductSelectionButton.png)
+### 決済予約の実行
 
-注文を登録すると決済用のQRコードが表示されるようになっています。
+注文を確定し、LINE Pay の決済予約を実行します。
 
-![決済用QRコード](images/chapxx-sumihiro3/08_QRCodeForPayment.png)
+#### 決済予約の実行処理
 
+ユーザーが注文情報を確認するとLINE Pay での決済に移ります。注文情報の下部に表示される”PAY BY LINE PAY”ボタンを押下すると、サーバーサイドへ決済予約処理をリクエストします。
+axios を利用して、サーバーサイドで提供される決済予約API を実行します。
 
-#### 購入者が利用する機能・画面
-
-購入者が利用する決済用QRコード読み取り〜決済画面・機能です。LINE Pay のアプリを立ち上げて決済するような感じですね。
-
-##### QRコードリーダー画面
-
-QRコードリーダー画面は自前で実装しません。LINE のURLスキームから呼び出すことができます。リッチメニューのリンクに下記のURLを登録するだけでOKです。
-
-*line://nv/QRCodeReader*
-
-このようにアプリでよく使う機能がURLスキームとして準備されているので、実装の手間が省けてコンテンツの作成に集中できるのも有り難いです。
-
-![QRコードリーダー](images/chapxx-sumihiro3/09_QRCodeReader.png)
-
-
-
-##### 決済開始画面
-
-購入者が操作する決済画面です。こちらもLIFFとして登録しておきます。
-
-こちらもVue.js で作成しています。この画面で出来ることは以下のとおりです。
-
-- 決済内容を確認して決済を開始する
-- LINE Pay 側にリダイレクトし、決済を実施する
-
-###### 画面表示
-
-ここではFlask のテンプレートエンジン（Jinja2）で決済開始画面のHTML ファイル（pay_by_line_pay.html）を返します。
-
-```python
-@app.route('/pay_by_line_pay', methods=['GET'])
-def get_pay_by_line_pay():
-    return render_template(
-        'pay_by_line_pay.html'
-    )
-
-```
-
-###### HTML（pay_by_line_pay.html）
-
-決済内容と決済を介するボタンを表示しています。
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div id="app">
-        <template id="purchase_order">
-            <v-layout row>
-<!--    API is loading...     -->
-                <v-container fluid v-if="api_loading === true">
-                    <v-layout >
-                        <v-flex xs12>
-                            <div class="resultContainer" >
-                                <v-layout align-center justify-center fill-height>
-                                    <v-progress-circular
-                                            :size="70"
-                                            :width="7"
-                                            color="green"
-                                            indeterminate
-                                    ></v-progress-circular>
-                                </v-layout>
-                            </div>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
-<!--    show LINE Pay button     -->
-                <v-flex v-else-if="order_id != null && this.order.id != null && payment_transaction_done === false"
-                        xs12 sm6 offset-sm3
-                >
-                    <v-card>
-                        <v-toolbar color="light-blue" dark>
-                            <v-toolbar-title>LINE Pay で支払いする</v-toolbar-title>
-                        </v-toolbar>
-                        <v-card-text>
-                            <div class="center">
-                                <h3 class="headline mb-0">[[ order.title ]]</h3>
-                                <h4 class="headline mb-0">支払い金額：[[ order.amount ]]円</h4>
-                            </div>
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-container fill-height fluid>
-                                <form action="/pay/reserve" method="post">
-                                    <input type="hidden" name="order_id" :value="order_id" />
-                                    <input type="hidden" name="user_id" :value="line_user_id" />
-                                    <button type="submit">
-                                        <img src="{{ url_for('static', filename='line_pay_logo.png') }}" />
-                                    </button>
-                                </form>
-                            </v-container>
-                        </v-card-actions>
-                    </v-card>
-                </v-flex>
-<!--    other     -->
-                <v-flex v-else
-                        xs12 sm6 offset-sm3
-                >
-                    <v-card>
-                        <v-toolbar color="light-blue" dark>
-                            <v-toolbar-title>ERROR...</v-toolbar-title>
-                        </v-toolbar>
-                    </v-card>
-                </v-flex>
-            </v-layout>
-        </template>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://unpkg.com/vue-router"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="{{ url_for('static', filename='vconsole.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='pay_by_line_pay.js') }}"></script>
-</body>
-</html>
-
-```
-
-###### JavaScript（pay_by_line_pay.js）
-
-axios を使って決済処理中の注文情報を取得する機能を実装しています。
+下記では、決済予約API の実行部分（drink_bar.js）について抜粋しています。
 
 ```javascript
-          async getPurchaseOrder() {
-            console.log('getPurchaseOrder called!!')
-            // 決済処理中の注文情報を 取得
-            this.api_loading = true
-            this.order_id = this.$route.query.oid
-            console.log('order_id: ' + this.order_id)
-            const api_url = '/api/order/' + this.line_user_id + '/' + this.order_id
-            const response = await axios.get(api_url).catch(error => {
-                console.error('API getPurchaseOrder failed...')
-                console.error(error)
-                this.api_result = null
-                this.api_loading = false
-            })
-            console.log('API response: ', response)
-            this.api_loading = false
-            this.api_result = response.data
-            this.order = this.api_result.order
-        },
-```
-
-##### 注文情報取得API
-
-注文情報をフロントから取得するAPIを設けます。
-
-SQLAlchemy を使ってデータベースから注文情報を取得して返しています。
-
-```python
-@app.route('/api/order/<user_id>/<order_id>', methods=['GET'])
-def get_order_info(user_id, order_id):
-    # query order
-    order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
-    return jsonify({
-        'order': {
-            'id': order.id,
-            'title': order.title,
-            'amount': order.amount
-        }
+payReserve: async function() {
+    console.log('function pay_reserve called!')
+    // 決済予約
+    this.api_loading = true
+    const params = {
+        user_id: this.line_user_id,
+        order_id: this.order.id
+    }
+    const url = '/pay/reserve'
+    console.log('Payment URL:', url)
+    const response = await axios.post(url, params).catch(function (err) {
+        this.api_loading = false
+        console.error('API POST PayReserve failed', err)
+        this.flow_status = 'INITIAL'
+        throw err
     })
+    console.log('Response: ', response)
+    this.api_result = response.data
+    const payment_url = this.api_result.payment_url
+    this.flow_status = 'PAYING'
+    // redirect to payment_url
+    window.location.href = payment_url
+    this.api_loading = false
+},
 ```
 
-##### 実装した決済開始画面
-
-画像のように商品選択画面で登録した注文情報が表示され、LINE Pay で決済予約処理を実行するボタンが配置された画面となります。
-
-![決済開始画面](images/chapxx-sumihiro3/10_SettlementStartScreen.png)
+サーバーサイドで提供される決済予約API を実行し、サーバーサイドから返されるLINE Pay の決済実行URL に遷移します。
 
 
-##### 決済予約処理の実行
+#### 注文情報登録API
 
-商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得する処理を実行します。
-
-LINE Pay の決済予約API を実行して、返ってくるトランザクションID とユーザーを注文情報に結び付け、決済承認画面にリダイレクトしています。
+商品選択画面のスクリプト（drink_bar.js）から呼び出される決済予約API です。
 
 ```python
 @app.route("/pay/reserve", methods=['POST'])
 def handle_pay_reserve():
-    order_id = request.form.get('order_id', None)
-    user_id = request.form.get('user_id', None)
-    # get PurchaseOrder and User
-    order = PurchaseOrder.query.filter(PurchaseOrder.id==order_id).first()
-    user = User.query.filter(User.id==user_id).first()
-		# do reserve payment
-    response = pay.reserve_payment(order)
+    app.logger.info('handler handle_pay_reserve called!')
+    app.logger.debug('Request json: %s', request.json)
+    request_dict = request.json
+    user_id = request_dict.get('user_id', None)
+    order_id = request_dict.get('order_id', None)
+    # 注文情報とユーザー情報をデータベースから取得する
+    order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
+    app.logger.debug('PurchaseOrder: %s', order)
+    user = User.query.filter(User.id == user_id).first()
+    app.logger.debug('User: %s', user)
+    ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
+    app.logger.debug('Ordered Item: %s', ordered_item)
+    # LINE Pay の決済予約API を実行してtransactionId を取得する
+    response = pay.reserve_payment(order, product_image_url=ordered_item.image_url)
     app.logger.debug('Response: %s', json_util.dump_json_with_pretty_format(response))
     app.logger.debug('returnCode: %s', response["returnCode"])
     app.logger.debug('returnMessage: %s', response["returnMessage"])
     transaction_id = response["info"]["transactionId"]
     app.logger.debug('transaction_id: %s', transaction_id)
-    # set TransactionId and User to PurchaseOrder
-    order.transaction_id = transaction_id
+    # 取得したtransactionId を注文情報に設定してデータベースを更新する
     order.user_id = user.id
+    order.transaction_id = transaction_id
     db.session.commit()
     db.session.close()
-    # redirect to LINE Pay payment page
-    redirect_url = response["info"]["paymentUrl"]["web"]
-    return redirect(redirect_url)
+    payment_url = response["info"]["paymentUrl"]["web"]
+    # LINE Pay の決済実行URL をフロントに返す
+    return jsonify({
+        'payment_url': payment_url
+    })
 ```
 
-###### LINE Pay API 決済予約の実行
-
-LINE Pay API を呼び出す部分です。
-決済する注文情報とAPI で設定された各種パラメータを設定して決済予約APIのURL（/v2/payments/request）へPOSTリクエストを送ります。
-
-API のパラメータについては、[LINE Pay 技術ドキュメント]をご確認ください。(https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
-
-line_pay.py（抜粋）
+リクエストされた注文情報を基にLINE Pay の決済予約処理を実行します。
+LINE Pay の決済予約処理はLinePay クラス（line_pay.py）のreserve_payment メソッドで行います。
+商品、金額など決済情報をLINE Pay の決済予約API（Reserve API）に送信し、決済URLを取得します。
 
 ```python
-    def reserve_payment(
-            self,
-            purchase_order,
-            product_image_url=LINE_PAY_BOT_LOGO_URL,
-            mid=None,
-            one_time_key=None,
-            delivery_place_phone=None,
-            pay_type='NORMAL',
-            lang_cd=None,
-            capture=True,
-            extras_add_friends=None,
-            gmextras_branch_name=None):
-        line_pay_url = self.__line_pay_url
-        line_pay_endpoint = f'{line_pay_url}/v2/payments/request'
-        order_id = purchase_order.id
-        body = {
-            'productName': purchase_order.title,
-            'amount': purchase_order.amount,
-            'currency': purchase_order.currency,
-            'confirmUrl': self.__confirm_url,
-            'confirmUrlType': self.__confirm_url_type,
-            'checkConfirmUrlBrowser': self.__check_confirm_url_browser,
-            'orderId': order_id,
-            'payType': pay_type,
-            'capture': capture,
-        }
-        if product_image_url is not None:
-            body['productImageUrl'] = product_image_url
-        if mid is not None:
-            body['mid'] = mid
-        if one_time_key is not None:
-            body['oneTimeKey'] = one_time_key
-        if self.__cancel_url is not None:
-            body['cancelUrl'] = self.__cancel_url
-        if delivery_place_phone is not None:
-            body['deliveryPlacePhone'] = delivery_place_phone
-        if lang_cd is not None:
-            body['langCd'] = lang_cd
-        if extras_add_friends is not None:
-            body['extras.addFriends'] = extras_add_friends
-        if gmextras_branch_name is not None:
-            body['gmextras.branchName'] = gmextras_branch_name
-        # リクエスト送信
-        response = requests.post(
-            line_pay_endpoint,
-            json_util.dump_json(body).encode('utf-8'),
-            headers=self.__headers,
-            proxies=self.__proxies
-        )
-        return response.json()
+def reserve_payment(
+        self,
+        purchase_order,
+        product_image_url=LINE_PAY_BOT_LOGO_URL,
+        mid=None,
+        one_time_key=None,
+        delivery_place_phone=None,
+        pay_type='NORMAL',
+        lang_cd=None,
+        capture=True,
+        extras_add_friends=None,
+        gmextras_branch_name=None):
+    logger.info('Method %s.reserve_payment called!!', self.__class__.__name__)
+    line_pay_url = self.__line_pay_url
+    line_pay_endpoint = f'{line_pay_url}/v2/payments/request'
+    order_id = purchase_order.id
+    body = {
+        'productName': purchase_order.title,
+        'amount': purchase_order.amount,
+        'currency': purchase_order.currency,
+        'confirmUrl': self.__confirm_url,
+        'confirmUrlType': self.__confirm_url_type,
+        'checkConfirmUrlBrowser': self.__check_confirm_url_browser,
+        'orderId': order_id,
+        'payType': pay_type,
+        'capture': capture,
+    }
+    if product_image_url is not None:
+        body['productImageUrl'] = product_image_url
+    if mid is not None:
+        body['mid'] = mid
+    if one_time_key is not None:
+        body['oneTimeKey'] = one_time_key
+    if self.__cancel_url is not None:
+        body['cancelUrl'] = self.__cancel_url
+    if delivery_place_phone is not None:
+        body['deliveryPlacePhone'] = delivery_place_phone
+    if lang_cd is not None:
+        body['langCd'] = lang_cd
+    if extras_add_friends is not None:
+        body['extras.addFriends'] = extras_add_friends
+    if gmextras_branch_name is not None:
+        body['gmextras.branchName'] = gmextras_branch_name
+    # リクエスト送信
+    response = requests.post(
+        line_pay_endpoint,
+        json_util.dump_json(body).encode('utf-8'),
+        headers=self.__headers,
+        proxies=self.__proxies
+    )
+    return response.json()
 ```
 
+API のパラメータについては、LINE Pay 技術ドキュメントをご確認ください。
+- https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
 
-##### LINE Pay の決済承認画面
+#### LINE Pay の決済承認画面
 
-決済予約処理が正常に完了すると、画像のようにLINE Pay の決済承認画面が表示されます。ここはLINE Pay プラットフォーム側の画面となります。
-
+決済予約処理が正常に完了すると、下図のようにLINE Pay の決済承認画面が表示されます。ここはLINE Pay プラットフォーム側の画面となります。
 注文情報（注文名や決済する金額）、指定した画像と決済承認ボタンが表示されています。
 
-![加盟店決済画面](images/chapxx-sumihiro3/11_MerchantSettlementScreen.png)
+![決済承認画面](images/chapxx-sumihiro3/PayByLinePay.png)
 
-「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービスのサーバーへ処理が返ってきます。
+「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービス（LINE Things Drink Bar）のサーバーへ処理が返ってきます。
 
-![決済完了画面](images/chapxx-sumihiro3/12_PaymentCompletionScreen.png)
+![決済承認完了](images/chapxx-sumihiro3/PayCompleted.png)
 
-
-##### 決済実行処理の実行
+### 決済実行処理の実行
 
 LINE Pay 側からサーバーサイドの決済実行処理が呼び出されますので、決済実行API を呼び出して決済を完了させます。
-
-決済実行API が正常に完了すれば、注文情報のステータスを決済完了にして更新します。
-
-最後に決済完了のメッセージやページを表示させれば実装完了です。
+決済実行API が正常に完了すれば、注文情報のステータスを決済完了に更新します。
 
 ```python
 @app.route("/pay/confirm", methods=['GET'])
 def handle_pay_confirm():
+    app.logger.info('handler handle_pay_confirm called!')
     transaction_id = request.args.get('transactionId')
-    # find PurchaseOrder by transaction_id
     order = PurchaseOrder.query.filter_by(transaction_id=transaction_id).one_or_none()
     if order is None:
         raise Exception("Error: transaction_id not found.")
-    # do confirm payment
+    # run confirm API
     response = pay.confirm_payments(order)
     app.logger.debug('returnCode: %s', response["returnCode"])
     app.logger.debug('returnMessage: %s', response["returnMessage"])
@@ -951,16 +747,20 @@ def handle_pay_confirm():
     order.status = PurchaseOrderStatus.PAYMENT_COMPLETED.value
     db.session.commit()
     db.session.close()
-    return "決済が完了しました"
+    return render_template(
+        'drink_bar.html',
+        message='Payment successfully completed.',
+        transaction_id=transaction_id
+    )
 ```
 
-
-###### LINE Pay API 決済実行
+#### LINE Pay API 決済実行
 
 LINE Pay API を呼び出す部分です。
 API で設定された各種パラメータを設定して決済実行APIのURL（/v2/payments/{transaction_id}/confirm）へPOSTリクエストを送ります。
 
-API のパラメータについては、[LINE Pay 技術ドキュメント]をご確認ください。(https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
+API のパラメータについては、LINE Pay 技術ドキュメントをご確認ください。
+- https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
 
 ```python
     def confirm_payments(self, purchase_order):
@@ -980,14 +780,27 @@ API のパラメータについては、[LINE Pay 技術ドキュメント]を�
         return response.json()
 ```
 
+決済確認が完了するとLINE Things Drink Bar に対してドリンクを抽出する操作を行います。
 
-#### heroku へのデプロイ
+![ドリンク抽出](images/chapxx-sumihiro3/DispensingDrink.png)
 
-##### 環境変数の設定
+ドリンク抽出後はお楽しみ抽選が実行され、確率で当たり／はずれが決定されます。
 
-デプロイの前に今回のBot サービスで使用する環境変数をheroku に登録しておきます。
+![抽選完了](images/chapxx-sumihiro3/FukubikiDone.png)
 
-###### LINE Bot のChannel Secretとアクセストークン
+以上でLINE Pay 決済に関わる部分の実装が完了します。
+本書では決済完了後のLINE Things でのDrink Bar の制御部分や、購入後のお楽しみ抽選に関するコードの解説は行いませんが、前述の通りソースコードをGithub のリポジトリで公開していますので、そちらを御覧ください。
+
+
+### heroku へのデプロイ
+
+実装が完了したので、heroku にLINE Things Drink Bar のプログラムをデプロイします。
+
+#### 環境変数の設定
+
+デプロイの前にLINE Things Drink Bar で使用する環境変数をheroku に登録しておきます。
+
+##### LINE Bot のChannel Secretとアクセストークン
 
 これらの情報はLINE Developers の画面から取得できます。
 
@@ -996,8 +809,7 @@ $ heroku config:set LINEBOT_CHANNEL_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxx -a {YOUR_AP
 $ heroku config:set LINEBOT_CHANNEL_SECRET=xxxxxxxxxx -a {YOUR_APP_NAME}
 ```
 
-
-###### LINE Pay API のChannel ID など
+##### LINE Pay API のChannel ID など
 
 これらの情報はLINE Pay API Sandbox の画面から取得できます。
 
@@ -1010,7 +822,7 @@ $ heroku config:set LINE_PAY_CHANNEL_SECRET=xxxxxxxxxxxx -a {YOUR_APP_NAME}
 $ heroku config:set LINE_PAY_CONFIRM_URL=https://{YOUR_APP_NAME}/pay/confirm -a {YOUR_APP_NAME}
 ```
 
-###### psycopg2 でのアクセスで使用するデータベスURL
+##### psycopg2 でのアクセスで使用するデータベスURL
 
 SQL Alchemy でのデータベース接続情報はheroku のHeroku Postgres 設定画面などで確認できます。
 
@@ -1018,13 +830,13 @@ SQL Alchemy でのデータベース接続情報はheroku のHeroku Postgres 設
 $ heroku config:set POSTGRESQL_DATABASE_URL=postgres+psycopg2://{DB_USER_ID}:{DB_USER_PASSWORD}@{DB_SERVER_URL}:5432/{DB_NAME} -a {YOUR_APP_NAME}
 ```
 
-###### 固定IPアクセス用のプロキシURL
+##### 固定IPアクセス用のプロキシURL
 
 固定IPアクセス用のプロキシURL に関する環境変数は、QuotaGuard Static アドオン登録時に登録されますので追加設定は不要です。
 
-##### コンテナのデプロイ
+#### コンテナのデプロイ
 
-いよいよBotサービスをheroku にリリースします。
+いよいよLINE Things Drink Bar のプログラムをheroku にリリースします。
 
 heroku のコンテナサービスにログインして、コンテナイメージをpush、heroku アプリケーションとしてリリースします。
 
@@ -1042,42 +854,15 @@ $ heroku container:release -a {YOUR_APP_NAME} web
 Releasing images web to {YOUR_APP_NAME}
 ```
 
-これで完了です！
+これでデプロイ完了です！
+
 
 ## 最後に
 
 解説が長くなりましたが、基本的な決済機能の組み込みは以上です。
 サービスとして公開するにはキャンセル処理なども実装する必要がありますが、他APIの呼び出しについても同様にAPI ドキュメントに沿ってパラメータを指定するだけです。
 
-また、今回はBot への組み込みで解説しましたがWeb ページへの組み込みもほぼ同じですので、決済機能を組み込んで個人でも稼いでいきましょう！
+また、今回はLINE Bot への組み込みで解説しましたがWeb ページへの組み込みもほぼ同じです。
+単純にLINE Pay での決済機能を利用するだけでなく、多くのユーザーが利用するLINE の特性を活かしてLINE Things などを組み合わせたWeb の世界以外とも連携したサービスを開発してはいかがでしょうか。
 
-
-## 関連リンク
-
-- [LINE Pay APIを使ってアプリに決済を組み込む方法](https://qiita.com/nkjm/items/b4f70b4daaf343a2bedc)
-
-- [［手続名］所得税の青色申告承認申請手続：国税庁](https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/shinkoku/annai/09.htm)
-
-- [LINE Pay](https://line.me/ja/pay)
-
-    - [LINE Pay 加盟店申請](https://pay.line.me/jp/intro?locale=ja_JP)
-    - [SandBox 申請](https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP)
-    - [LINE Pay 技術ドキュメント](https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP)
-    - [LINE Pay ロゴ画像](https://pay.line.me/jp/developers/documentation/download/logo?locale=ja_JP)
-
-- LINE Messaging API
-    - [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
-
-- [heroku](https://jp.heroku.com/)
-    - [heroku CLI](https://devcenter.heroku.com/categories/command-line)
-    - [Deploying with Docker](https://devcenter.heroku.com/categories/deploying-with-docker)
-    - [QuotaGuard Static](https://devcenter.heroku.com/articles/quotaguardstatic)
-    - [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql)
-    - [FlaskアプリケーションをHeroku上のDockerで起動](https://qiita.com/nanakenashi/items/d3572989d76a651262b5)
-    - [Heroku で Docker を使う場合の諸注意](https://qiita.com/sho7650/items/9654377a8fc2d4db236d)
-
-- Vue.js
-    - [Vuetify](https://vuetifyjs.com/ja/)
-    - [vue-qriously](https://github.com/theomessin/vue-qriously)
-
-  
+なお、LINE Things や、LIFF などの設定は本章では触れていませんが、他の章でLINE API Expert のみなさんが解説していますので、そちらを参考にしていただければと思います。
