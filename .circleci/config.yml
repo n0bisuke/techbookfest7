@@ -1,0 +1,12 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: kauplan/review2.5
+    working_directory: /build
+    steps:
+      - checkout
+      - run: cd /build/review-starter; rake pdf
+      - store_artifacts:
+          path: /build/review-starter/techbookfest7.pdf
+          destination: techbookfest7.pdf
