@@ -1,11 +1,11 @@
 
-= TypeScript × VSCode × Clova開発
+= TypeScript × Visual Studio Code × Clova 開発
 
 == はじめに
 
 
-本章では昨今波に乗りまくっているTypeScriptでClovaスキルを超効率爆速開発できるようになるため、JavaScriptで書かれたClovaスキルのソースをTypeScriptに移植しながらTypeScriptを学習していきます。@<br>{}
-ngrokでローカルにサーバーをたてテスト画面から動作確認をするため、クラウド環境や実機は必要ありません。  
+本章では昨今波に乗りまくっているTypeScriptでClovaスキルを超効率爆速開発できるようになるため、JavaScriptで書かれたClovaスキルをTypeScriptに移植しながら学習を進めていきます。@<br>{}
+ngrokでローカルにサーバをたてテスト画面から動作確認をするため、クラウド環境や実機は必要ありません。  
 
 
 === 本章の対象者
@@ -13,7 +13,7 @@ ngrokでローカルにサーバーをたてテスト画面から動作確認を
 
 本章の対象者は以下のような方です。  
 
- * TypeScriptが気になってるけどまだ触ったことない
+ * TypeScriptが気になっているけどまだ触ったことない
  * tsconfig開いてそっ閉じしてしまった
  * Clovaスキル開発をもっと効率的に行いたい
 
@@ -46,14 +46,14 @@ TypeScriptの特徴をあげると以下のような特徴があります。
  * Microsoftが開発したオープンソースのプログラミング言語
  * 省略可能な静的型付け
  * クラスベースのオブジェクト指向
- * JavaScriptと互換性を持つスーパーセット
+ * JavaScriptと互換性をもつスーパーセット
  * TypeScriptのソースからJavaScriptのソースを生成する
 
 
 === TypeScriptのメリット
 
 
-ではTypeScriptを使うとどんなメリットがあるかというと主に以下のようなメリットがあります。  
+ではTypeScriptを使うとどんなメリットがあるかというと、主に以下のようなメリットがあります。  
 
  * 型
  * 入力補完
@@ -70,15 +70,15 @@ TypeScriptの特徴をあげると以下のような特徴があります。
 ==== 古えの型
 
 
-CやJavaのような古えの静的型付け言語では基本的にはメモリを確保するために型が使われていました。@<br>{}
-例えばJavaでは数値型だけでもたくさんあります。  
+CやJavaのような古えの静的型付き言語では基本的にはメモリを確保するために型が使われていました。@<br>{}
+たとえばJavaでは数値型だけでもたくさんあります。  
 
- * byte (8bit)
- * short (16bit)
- * int (32bit)
- * long (64bit)
- * float (32bit浮動小数型)
- * double (64bit浮動小数型)
+ * byte（8bit）
+ * short（16bit）
+ * int（32bit）
+ * long（64bit）
+ * float（32bit浮動小数型）
+ * double（64bit浮動小数型）
 
 
 ==== ナウい型
@@ -89,7 +89,7 @@ CやJavaのような古えの静的型付け言語では基本的にはメモリ
 
 
 
-つまり、古えの型はコンピューターのために存在していたものであり、ナウい型はソースを書く人間のために存在しているのです。  
+つまり、古えの型はコンピュータのために存在していたものであり、ナウい型はソースを書く人間のために存在しているのです。  
 
 
 ==== JavaScriptの型
@@ -99,23 +99,23 @@ JavaScriptでは表面的には型はありませんが、内部的には型が�
 以下のような@<tt>{typeof xxx}で返ってくる値が内部的な型です。  
 
  * プリミティブ型
- ** boolean (真偽値)
- ** string (文字列)
- ** number (数値)
+ ** boolean（真偽値）
+ ** string（文字列）
+ ** number（数値）
  ** undefined
  ** null
  ** ]
  *  *
  * オブジェクト型
- ** object (オブジェクト、配列)
- ** Function (関数)
+ ** object（オブジェクト、配列）
+ ** Function（関数）
 
 
 ==== TypeScriptの型
 
 
-TypeScriptの型はJavaScriptの型に加え、なんでも入るany、unknownの他、リテラル型、タプル型、ユニオン型と様々な型があります。@<br>{}
-それらを組み合わせたりクラス作ったりと自由自在に柔軟に型を定義することができます。  
+TypeScriptの型はJavaScriptの型に加え、なんでも入るany、unknownのほか、リテラル型、タプル型、ユニオン型とさまざまな型があります。@<br>{}
+それらを組み合わせたりクラス作ったりと自由自在かつ柔軟に型を定義できます。  
 
 
 
@@ -150,9 +150,9 @@ TypeScriptの型はJavaScriptの型に加え、なんでも入るany、unknown�
 ===== unknown
 
 
-anyでは危なっかしいという事でver3.0で追加された型です。@<br>{}
+anyでは危なっかしいということでver3.0にて追加された型です。@<br>{}
 any同様どんな型でも入りますが、使う時は何の型か分かる状況でないと使えません。@<br>{}
-何の型か分かる状況というのは下図のように型アサーションで型を明示するか、ifとtypeofによりなんの型か分かりきっている状況です。@<br>{}
+何の型か分かる状況というのは下図のように型アサーションで型を明示するか、ifとtypeofにより何の型か分かりきっている状況です。@<br>{}
 安全に書き進めたいならanyではなくunknownを使用すると良いでしょう。  
 
 
@@ -166,7 +166,7 @@ any同様どんな型でも入りますが、使う時は何の型か分かる�
 
 
 型への誤った代入時に警告してくれる機能です。@<br>{}
-これによりコード書いてる時に気づけ、不毛なデバッグを回避できます。  
+これによりコード書いている時に気付くことができ、不毛なデバッグを回避できます。  
 
 
 
@@ -178,7 +178,7 @@ any同様どんな型でも入りますが、使う時は何の型か分かる�
 ==== 型推論
 
 
-分かりきってる型を勝手に推論してくれる機能です。@<br>{}
+分かりきっている型を勝手に推論してくれる機能です。@<br>{}
 下図では変数numに対して型定義していませんが、代入した値が数値型であるため、TypeScriptがnumは数値型だと推論してくれています。@<br>{}
 ifとtypeofにより型が絞られた状態でも同様に型推論を行ってくれます。  
 
@@ -237,7 +237,7 @@ TypeScript Deep Dive: https://typescript-jp.gitbook.io/deep-dive/
 
 
 この節ではTypeScriptへの移植元となるJavaScriptのスキルを構築します。@<br>{}
-ngrokでローカルにサーバーをたて、テスト画面で動作確認します。  
+ngrokでローカルにサーバをたて、テスト画面で動作確認します。  
 
 
 === サンプルスキル
@@ -267,10 +267,10 @@ Clova Developer Center(https://clova-developers.line.biz/cek/#/list)を開き、
 最後にビルドボタンをクリックします。  
 
 
-=== VSCodeの起動
+=== Visual Studio Codeの起動
 
 
-cloneしたリポジトリにある@<tt>{step.code-workspace}をVSCodeでを開きます。  
+cloneしたリポジトリにある@<tt>{step.code-workspace}をVisual Studio Code（以下VSCode）を開きます。  
 
 
 === ngrokのインストールと実行
@@ -278,8 +278,8 @@ cloneしたリポジトリにある@<tt>{step.code-workspace}をVSCodeでを開�
 
 ngrokとはローカルで実行したプログラムを外部からhttpアクセスするためのトンネリングアプリケーションです。@<br>{}
 一般的にスマートスピーカースキルではAWS LambdaといったFaaSにプログラムをデプロイしますが、ngrokを使うことでデプロイの手間を省き開発を迅速に進めることができます。@<br>{}
-VSCodeでターミナルを起動したのち以下のコマンドを実行し、ngorkのインストール、実行を行います。@<br>{}
-なお、ngrokは常に起動し続けている必要があるのでターミナルを落とさないよう気をつけてください。  
+VSCodeでターミナルを起動したのち以下のコマンドを実行し、ngrokのインストール、実行を行います。@<br>{}
+なお、ngrokは常に起動し続けている必要があるのでターミナルを落とさないよう気を付けてください。  
 
 
 //cmd[]{
@@ -310,14 +310,14 @@ Forwarding                    https://xxxxxxxx.ngrok.io -> localhost:3000
 
 
 ブラウザに戻り開発設定画面を開きます。@<br>{}
-ExtensionサーバーのURLにngrokのURLを入力し、末尾に@<tt>{/sample-dice}を追記します。@<br>{}
+ExtensionサーバのURLにngrokのURLを入力し、末尾に@<tt>{/sample-dice}を追記します。@<br>{}
 最後に保存ボタンをクリックします。  
 
 
 === npmパッケージインストールとNode実行
 
 
-CEK SDKやexpressといったスキルに必要なモジュールのインストールとプログラムの実行を行います。@<br>{}
+Clova Extensions Kit SDK（以下CEK SDK）やexpressといったスキルに必要なモジュールのインストールとプログラムの実行を行います。@<br>{}
 VSCodeで新しいターミナルを開き以下のコマンドを実行します。  
 
 
@@ -353,7 +353,7 @@ node index.js
 VSCodeで@<tt>{index.js}を開いてみてください。@<br>{}
 以下のような構成になっています。  
 
- * 定数、ロジック、ハンドラーでブロックを分けている
+ * 定数、ロジック、ハンドラでブロックを分けている
  * @<tt>{Guide}や@<tt>{Cancel}といったプリセットのインテントは基本@<tt>{Fallback}に投げている
  * まともな実装は@<tt>{throwDiceHandler}ぐらい
  ** Clovaに伝えた数字分サイコロを降って、結果を話す
@@ -429,7 +429,7 @@ npm i
 
 昔は@<tt>{tsd}という巨大型定義リポジトリを落としたり、@<tt>{typings}といった型定義専用パッケージマネージャみたいなものがありました。@<br>{}
 しかし、今は@<tt>{@types}というnpmパッケージ群から@<tt>{npm i -D @types/xxx}という感じで簡単に型定義をインストールできるようになりました。@<br>{}
-使ってるライブラリ自体に型定義がなかったらひとまず@<tt>{npm i -D @types/xxx}としてみてください。  
+使っているライブラリ自体に型定義がなかったらひとまず@<tt>{npm i -D @types/xxx}としてみてください。  
 
 
 === tsconfigの作成
@@ -468,22 +468,22 @@ tsc --init
 === tsconfigについて
 
 
-tsconfigのパラメーターについてスキル開発にあたり主だった部分を抜粋して説明します。  
+tsconfigのパラメータについてスキル開発にあたり主だった部分を抜粋して説明します。  
 
 
 ==== Basic Options
  * target: コンパイル先ESバージョンを指定
  * module: モジュール管理方法を指定
- * lib: ECMAScriptの上位バージョンだったりDOMだったり標準APIを有効化
+ * lib: ECMAScriptの上位バージョンやDOMといった標準APIを有効化
  * sourceMap: Source Mapファイルを生成するか
  ** Source Mapファイルとは
- *** コンパイルされたJavaScriptのどの行がTypeScriptのどの行にあたるかをデバッガーに伝えるためのファイルのこと
+ *** コンパイルされたJavaScriptのどの行がTypeScriptのどの行にあたるかをデバッガに伝えるためのファイルのこと
  *** @<tt>{xxx.js.map}みたいな名前で出力される
  * outDir: コンパイルされたjsの出力先ディレクトリを指定
 
 
 ==== Strict Type-Checking Options
- * strict: 以下の全てのチェックを有効化する
+ * strict: 以下のすべてのチェックを有効化する
  * noImplicitAny: 暗黙のanyを許可しない
  * strictNullChecks: 厳密なnullチェック
  * strictFunctionTypes: 関数の引数の厳密に型チェック
@@ -495,7 +495,7 @@ tsconfigのパラメーターについてスキル開発にあたり主だった
 
 ==== Additional Checks
  * noUnusedLocals: 未使用のローカル変数があるとエラー
- * noUnusedParameters: 未使用のパラメーターがあるとエラー
+ * noUnusedParameters: 未使用のパラメータがあるとエラー
  * noImplicitReturns: 関数内に通らないコードがあるとエラー
  * noFallthroughCasesInSwitch: switch文でbreakがないとエラー
 
@@ -528,7 +528,7 @@ VSCodeで問題パネルを開いてみてください。@<br>{}
 
 
 再度@<tt>{index.ts}のエラーをチェックしてみてください。@<br>{}
-すべてのエラーが消えてることでしょう。@<br>{}
+すべてのエラーが消えていることでしょう。@<br>{}
 strictをオフにしたことによりすべての型チェックが無効化され、JavaScriptとほぼ同様の状態となりました。  
 
 
@@ -581,75 +581,111 @@ JavaScriptStep2のときと同じ動きになります。
 この節ではJavaScriptのソースを実際にTypeScriptへ書き換えつつ、TypeScriptのメリットを体感していきます。  
 
 
-=== requireをimportに
- * @<tt>{@line/clova-cek-sdk-nodejs}
+=== requireをimportに書き換え
 
 
-//emlist{
+まずは@<tt>{require}を@<tt>{import}文に書き換えます。  
+
+
+==== @<tt>{@line/clova-cek-sdk-nodejs}
+
+//emlist[index.ts（1行目）]{
 - const { Client, SpeechBuilder } = require("@line/clova-cek-sdk-nodejs")
 + import { Client, SpeechBuilder } from "@line/clova-cek-sdk-nodejs"
 //}
- * @<tt>{express}, @<tt>{body-parser}
 
+==== @<tt>{express}, @<tt>{body-parser}
 
-//emlist{
+//emlist[index.ts（157行目）]{
 - const express = require("express")
 - const bodyParser = require("body-parser")
 + import express from "express"
 + import bodyParser from "body-parser"
 //}
 
-=== @<tt>{app.post(ENDPOINT, bodyParser.json(), clovaSkillHandler)}でエラー発生
- * エラー内容確認
- ** @<tt>{RequestHandler}型にする必要があるっぽい
+=== 新たに発生したエラーを確認
+
+
+expressのrequireをimportに書き換えたことにより、@<tt>{app.post(ENDPOINT, bodyParser.json(), clovaSkillHandler)}にて新たにエラーが発生します。@<br>{}
+エラー内容をみてみましょう。  
 
 
 //emlist{
 Type 'Function' is missing the following properties from type '(RequestHandler | ErrorRequestHandler)[]'
 //}
- * @<tt>{RequestHandler}がどこにあるか探す
- ** @<tt>{const app = express()}の@<tt>{express}を@<tt>{ctrl + クリック}
- *** @<tt>{express}の型定義が開くので@<tt>{RequestHandler}を検索してみる
+
+
+どうやら@<tt>{RequestHandler}型にする必要がある、ということが読み取れます。  
+
+
+
+では、その@<tt>{RequestHandler}型はどこにあるのでしょうか。@<br>{}
+expressのpostメソッドでエラーが発生しているのでexpressが怪しいです。@<br>{}
+expressの型定義を覗いてみましょう。  
+
+
+
+@<tt>{const app = express()}の@<tt>{express}を@<tt>{ctrl + クリック}することでexpressの型定義ファイルが開かれます。@<br>{}
+型定義ファイルの中で@<tt>{RequestHandler}を検索してみましょう。  
+
+
+
+@<tt>{declare namespace e}の中で@<tt>{interface RequestHandler extends core.RequestHandler { \}}と宣言されている行が見つかります。@<br>{}
+@<tt>{declare namespace e}は最後の行でexportされていますので、つまりexpressの直下に@<tt>{RequestHandler}型が定義されています。  
 
 
 === ソースを修正
- * @<tt>{clovaSkillHandler}に型アサーションをつける
 
 
-//emlist{
+エラー内容で求められている型の所在が分かりましたので、エラーを解消するようソースを修正してみましょう。@<br>{}
+エラーが発生している@<tt>{clovaSkillHandler}に以下のように@<tt>{RequestHandler}型の型アサーションをつけます。@<br>{}
+この修正によりエラーが消えることを確認してください。  
+
+
+//emlist[index.ts（162行目）]{
 - app.post(ENDPOINT, bodyParser.json(), clovaSkillHandler)
 + app.post(ENDPOINT, bodyParser.json(), clovaSkillHandler as express.RequestHandler)
 //}
- * SDKが@<tt>{handle()}メソッドで@<tt>{Function}型を返してるのも良くない
- ** @<href>{https://github.com/line/clova-cek-sdk-nodejs/blob/master/src/client.ts#L77,GitHubの最新ソース}を見ると@<tt>{(req: any, res: any) => void}という型だと分かる
- * jsで動いてた=問題ない事がわかりきってるのであれば@<tt>{as any}で解決もあり
 
 
-=== 問題パネルからエラーを確認
- * 問題パネル開く
- ** Win: @<tt>{ctrl + shift + m}
- ** Mac: @<tt>{⌘ + ⇧ + m}
- * 問題は関数の引数の暗黙的any
- ** diceCount
- ** throwResult
- ** responseHelper
+//note[このエラーの根本原因]{
+このエラーはそもそもCEK SDKが@<tt>{handle()}メソッドで@<tt>{Function}型を返しているのが良くありません。@<br>{}
+ソースを読み解いていくと分かりますが、@<tt>{handle()}メソッドで返すべき型は@<tt>{(req: any, res: any) => {\}}なので本来@<tt>{handle(): (req: any, res: any) => {\}}と定義されている必要があります。@<br>{}
+型定義は便利ですがライブラリの設計によってはこのように思わぬ落とし穴にハマることもあります。@<br>{}
+//}
+
+
+
+//note[as anyで握りつぶすという選択肢も]{
+このエラー箇所はJavaScriptのソースでは問題なく動いていました。@<br>{}
+そのため問題ないことが分かりきっているのであれば@<tt>{as any}で解決してしまうのもアリです。@<br>{}
+//}
+
+
+=== 残りのエラーを確認
+
+
+残りのエラーについてVSCodeの問題パネルから確認してみましょう。@<br>{}
+関数の引数に対する暗黙的anyのエラーが発生しています。@<br>{}
+暗黙的anyのエラーでは、TypeScriptが型推論できない箇所に暗黙的にany型を割り当てることに対するエラーです。@<br>{}
+明示的にanyを指定することでもエラーは解消されますが、ここでは正しい型を割り当てていきましょう。  
 
 
 === @<tt>{diceCount}の型
 
 
-変数名から分かる通り数値型。
-なので@<tt>{number}型でアノテーションをつける。
+名前から分かる通り数値型が正解です。@<br>{}
+ですので、以下のように@<tt>{number}型でアノテーションをつけましょう。@<br>{}
+２ヵ所あるので両方ともソースを修正します。  
 
 
-//emlist{
-// 26行目
+//emlist[index.ts（26行目）]{
 - const getThrowResultMessage = (diceCount) => {
 + const getThrowResultMessage = (diceCount: number) => {
 
-...
+//}
 
-// 35行目
+//emlist[index.ts（35行目）]{
 - const throwDice = (diceCount) => {
 + const throwDice = (diceCount: number) => {
 //}
@@ -657,72 +693,103 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
 === @<tt>{responseHelper}の型
 
 
-よくわかんないから@<tt>{any}、、、としておきたいけど、これよく使うのでちゃんと型を定義しておきたい
+ぱっと見、どんな型なのかよく分からないのでanyとしておきたいところですが、このオブジェクトはスキル開発時によく使うのでちゃんと型を定義しておきます。  
 
 
 === 型定義から読み解いてみる
 
 
-@<tt>{onLaunchRequest}までたどり、関数名にマウスオーバーして表示されるツールチップを見てみる
-
- * カーソルあてて@<tt>{ctrl (⌘) + k -> ctrl (⌘) + i}でもツールチップ開けます
-
+ソースを@<tt>{onLaunchRequest}までたどり、関数名をマウスオーバーします。@<br>{}
+下図のようにツールチップが表示されます。  
 
 
-//image[tooltip][image]{
+
+//image[tooltip][onLaunchRequestのツールチップ]{
 //}
 
 
- * また@<tt>{Function}…
+
+
+@<tt>{requestHandler}の型を調べたかったのですが、またFunction型が指定されています…@<br>{}
+ここで正しい型が指定されていればその型のアノテーションをつければ解決でした。@<br>{}
+しかし、Function型ではany型と同様に詳細なオブジェクト情報が分かりません。  
 
 
 === 正解の型
- * @<href>{https://github.com/line/clova-cek-sdk-nodejs/blob/master/src/client.ts#L36,GitHubの最新ソース}をみると@<tt>{(ctx: Context) => void}
- ** ここの@<tt>{ctx}が@<tt>{responseHelper}に相当する
- ** なので正解の型は@<tt>{Context}
+
+
+実は8/1時点ではCEK SDKのGitHubリポジトリに正しい型定義を指定されたソースがコミットされています。@<br>{}
+（ただnpm側が最新のソースをリリースされておらず、Function型のままとなっています…）
+
+
+
+正しい型定義のソース:@<br>{}
+https://github.com/line/clova-cek-sdk-nodejs/blob/09d708f08f9e13e7cc481ed0c9c2b304259dcc31/src/client.ts#L36
+
+
+
+このソースでは@<tt>{requestHandler: (ctx: Context) => void}と定義されています。@<br>{}
+つまり、@<tt>{requestHandler}は@<tt>{(ctx: Context) => void}という型の関数オブジェクトとなります。@<br>{}
+このうち@<tt>{ctx}が@<tt>{responseHelper}に相当するので、正解の型は@<tt>{Context}ということです。  
 
 
 === @<tt>{Context}アノテーションをつける
 
 
-@<tt>{responseHelper}に@<tt>{Context}アノテーションをつける
+では@<tt>{responseHelper}に@<tt>{Context}アノテーションをつけてみましょう。  
 
 
-//emlist{
+//emlist[index.ts（70行目）]{
 - const launchHandler = async (responseHelper) => {
 + const launchHandler = async (responseHelper: Context) => {
 //}
 
 
-@<tt>{Context}型が無いよと怒られる…
+今度は追記した@<tt>{Context}でエラーが発生しました。@<br>{}
+下図のようにツールチップを確認すると@<tt>{Context}型が見つからない、というエラーです。  
 
 
 
-//image[context-error][image]{
+//image[context-error][Contextのエラー]{
 //}
 
 
 
 === @<tt>{Context}型を探す
- * SDKを開いてみる
- ** 1行目のimport文から@<tt>{@line/clova-cek-sdk-nodejs}を@<tt>{ctrl + クリック}
- *** SDKの型定義（@<tt>{index.d.ts}）が開かれる
+
+
+@<tt>{Context}型がどこで定義されているか探してみましょう。@<br>{}
+CEK SDKのどこかにあるはずですので、ひとまずSDKの型定義を見てみます。  
 
 
 
-//image[sdk-d-ts][image]{
+1行目のimport文から@<tt>{@line/clova-cek-sdk-nodejs}を@<tt>{ctrl + クリック}して型定義を開きましょう。@<br>{}
+型定義の2行目で@<tt>{Context}がimportされ、最後の行でexportされています。@<br>{}
+単純にSDKのインポート時に@<tt>{Context}を追記すればいいわけです。  
+
+
+
+//image[sdk-d-ts][Clova Extensions Kit SDKの型定義]{
 //}
 
 
 
 === @<tt>{Context}のインポート
 
-//emlist{
+
+SDKのimportに@<tt>{Context}を追記します。  
+
+
+//emlist[index.ts（1行目）]{
 - import { Client, SpeechBuilder } from "@line/clova-cek-sdk-nodejs"
 + import { Client, Context, SpeechBuilder } from "@line/clova-cek-sdk-nodejs"
 //}
 
-=== 入力補完を試してみる
+=== 入力補完を試してみよう
+
+
+ここまでで@<tt>{responseHelper}に@<tt>{Context}型が割り当てられました。  
+
  * launchHandler（70行目らへん）の関数内で@<tt>{responseHelper.}と入力しサジェスチョンを表示
  ** Win: @<tt>{ctrl + space} / Mac: @<tt>{⌘ + space}
  * @<tt>{setSimpleSpeech}を選択
@@ -739,14 +806,14 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
  * @<tt>{SpeechBuilder.}と入力しサジェスチョンを表示
  ** @<tt>{createSpeechText}を選択
  *** 選択後、@<tt>{()}の入力を忘れずに
- * @<tt>{createSpeechText}にカーソルを合わせツールチップを表示
+ * @<tt>{createSpeechText}にカーソルを合わせ、ツールチップを表示
  ** Win: @<tt>{ctrl + k -> ctrl + i}
  ** Mac: @<tt>{⌘ + k -> ⌘ + i}
  * ツールチップに表示される引数を確認し実装
- ** 第2引数の@<tt>{lang?}の@<tt>{?}はオプショナル（省略可）をあらわす
+ ** 第2引数の@<tt>{lang?}の@<tt>{?}はオプショナル（省略可）を表す
 
 
-=== 全ての@<tt>{responseHelper}の修正
+=== すべての@<tt>{responseHelper}の修正
  * VSCodeのマルチカーソルを使うとラク
  ** エラーの出てる@<tt>{responseHelper}をダブルクリック
  ** @<tt>{shift (⇧) + end}で行末尾まで選択
@@ -785,7 +852,7 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
 数値型として型アサーションをつける
 
 
-//emlist{
+//emlist[index.ts（80行目）]{
 - const diceCount = responseHelper.getSlots().number || 1
 + const diceCount = (responseHelper.getSlots().number || 1) as number
 //}
@@ -802,7 +869,7 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
  *** 専用の型を宣言しちゃおう！
 
 
-//emlist{
+//emlist[index.ts（19行目）]{
 + type ThrowResult = {midText: string, sum: number, diceCount: number}
 //}
  * 型名はパスカルケース（先頭大文字）
@@ -814,7 +881,7 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
 @<tt>{resultText()}の引数
 
 
-//emlist{
+//emlist[index.ts（57行目）]{
 - const resultText = (throwResult) => {
 + const resultText = (throwResult: ThrowResult) => {
 //}
@@ -823,7 +890,7 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
 @<tt>{throwDice()}の戻り値にもつけてみる
 
 
-//emlist{
+//emlist[index.ts（57行目）]{
 - const throwDice = (diceCount: number) => {
 + const throwDice = (diceCount: number): ThrowResult => {
 //}
@@ -832,7 +899,7 @@ Type 'Function' is missing the following properties from type '(RequestHandler |
 
 === @<tt>{interface}でも型宣言できる
 
-//emlist{
+//emlist[index.ts（19行目）]{
 - type ThrowResult = {midText: string, sum: number, diceCount: number}
 + interface ThrowResult {midText: string, sum: number, diceCount: number}
 //}
@@ -859,11 +926,11 @@ node dist/index.js
 === 【演習】ガイドインテントを実際に実装してみよう
 
 
-fallbackに飛ばされている実装を@<tt>{GUIDE_MESSAGE}を返すよう修正してみてください
+fallbackに飛ばされている実装を、@<tt>{GUIDE_MESSAGE}を返すよう修正してみてください
 （@<tt>{responseHelper}、@<tt>{SpeechBuilder}の入力補完を活かして！）
 
 
-//emlist{
+//emlist[index.ts（96行目）]{
 /**
  * ガイドインテント
  */
@@ -872,19 +939,19 @@ const guideHandler = async (responseHelper: Context) => {
 }
 //}
 
-== Step5. 関連ツールについて(lint, tsc -w, nodemon, debug)
+== Step5. 関連ツールについて（lint, tsc -w, nodemon, debug）
 
 === lint
 
 ==== typescript-eslint vs tslint
  * 去年までは@<tt>{tslint}が主流だった
  * だけど今年1月にTypeScriptチームがESLintチームと協力して@<tt>{typescript-eslint}を開発していくと宣言
- * @<strong>{2019年中にtslintは非推奨になるのでtypescript-eslintを使っていくのが正解}
+ * 2019年中に@<tt>{tslint}は非推奨になるので@<tt>{typescript-eslint}を使っていくのが正解
 
 
 ==== typescript-eslintの導入
  * インストール
- ** ESLint本体に加え、TypeScript用プラグインとパーサーが必要
+ ** ESLint本体に加え、TypeScript用プラグインとパーサが必要
 
 
 //cmd[]{
@@ -926,7 +993,7 @@ $ eslint --init
  * @<tt>{.eslintrc.json}を修正
 
 
-//emlist{
+//emlist[.eslintrc.json（6行目から）]{
 -   "extends": "eslint:recommended",
 +   "extends": [ "plugin:@typescript-eslint/recommended" ],
     "globals": {
@@ -973,7 +1040,7 @@ tsc -w
 === nodemon
 
 ==== nodemon
- * @<href>{https://nodemon.io/,nodemon}とは？
+ * @<href>{https://nodemon.io/,nodemon}とは
  ** @<strong>{ソース変更を検知してプロセスを自動で再起動してくれるツール}
  * インストール & 実行
  ** 一度実行しておけばソースが変更される度に勝手に再実行してくれる
@@ -985,7 +1052,7 @@ npm i -g nodemon
 nodemon -w dist dist/index.js
 //}
 
-==== 開発tips
+==== 開発Tips
  * ローカル開発するときは@<tt>{ngrok http 3000}, @<tt>{tsc -w}, @<tt>{nodemon -w dist dist/index.js}を同時に動かしておくとすごくラク
  ** ソース変更 -> 勝手にコンパイル -> 勝手にnode再起動 -> しあわせ
  * 私は一発起動バッチ使ってます（Windows）
@@ -1004,7 +1071,7 @@ start nodemon -w dist dist/index.js
  * @<tt>{tsconfig.json}にてSource Mapを有効にする
 
 
-//emlist{
+//emlist[tsconfig.json（13行目あたり）]{
 - // "sourceMap": true,                     /* Generates corresponding '.map' file. */
 + "sourceMap": true,                     /* Generates corresponding '.map' file. */
 //}
@@ -1034,7 +1101,7 @@ ls dist/index.js.map
 
 ==== @<tt>{nodemon}に対応するよう@<tt>{launch.json}を修正
 
-//emlist{
+//emlist[launch.json（6行目から）]{
     "configurations": [
         {
             "type": "node",
@@ -1085,7 +1152,7 @@ nodemon --inspect dist/index.js
 
 ==== スキル実行
  * ブラウザの@<tt>{テスト画面}にてスキル起動
- * VSCodeにてブレークポイントで停止してその時の変数状態がチェックできることを確認
+ * VSCodeにてブレークポイントで停止してそのときの変数状態がチェックできることを確認
  ** 再度@<tt>{F5}を押すと処理が進む
 
 
@@ -1098,7 +1165,7 @@ nodemon --inspect dist/index.js
 ==== デバッグの注意点
  * @<tt>{テスト画面}だとレスポンスがしばらく返ってこないとタイムアウトしちゃう
  ** 最終的なレスポンスのJSONがチェックできない＞＜
- * 中村さんが作ったシミュレーターを使うとタイムアウトせずに確認できる！
+ * 中村さんが作ったシミュレーターを使うとタイムアウトせずに確認できる
  ** Qiita: @<href>{https://qiita.com/kenakamu/items/cdc9eacaec8f4400019f,CEK開発用Clovaシミュレーターで開発スピードを上げる}
  ** GitHub: @<href>{https://github.com/kenakamu/clova-simulator,Clova CEK シミュレーター}
 
