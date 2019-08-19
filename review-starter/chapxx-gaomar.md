@@ -470,3 +470,45 @@ Messaging APIをクリック
 発行されたアクセストークンをメモしておきましょう。
 
 ![アクセストークンをメモしておく](images/chapxx-gaomar/g507.png)
+
+#### Webhookを設定
+Webhookのアクセス先URLを指定します。編集ボタンをクリックします。
+
+![編集ボタンをクリック](images/chapxx-gaomar/g508.png)
+
+メモしたAPI GatewayのURLを貼り付けます。「https://」は既にあるので、省略して貼り付けます。［更新］ボタンをクリックします。
+
+![API GatewayのURLを設定](images/chapxx-gaomar/g509.png)
+
+Webhook送信を利用するに変えます
+
+![利用するに変える](images/chapxx-gaomar/g510.png)
+
+利用するを選択して［更新］ボタンをクリックします。
+稀に利用するに変わらないことがあるので、画面をリロードして確認してください。
+
+![利用するになっているか確認する](images/chapxx-gaomar/g511.png)
+
+#### LINE Botと友だちになる
+下にスクロールするとQRコードがあるので、LINEアプリからQRを読み取って、必ずBotと友だちになっておいてください。ペアリングする際に友だちになっていないとうまく連携できません。
+
+![Botと友だちになっておく](images/chapxx-gaomar/g512.png)
+
+#### LIFFの設定をする
+LIFFアプリを設定します。LIFFタブをクリックして、［LIFFアプリを作成］ボタンをクリックします。
+
+![LIFFアプリを作成をクリック](images/chapxx-gaomar/g513.png)
+
+
+LIFFの設定を行います。`BLE feature`は必ず「ON」にしてください。
+
+|項目|値|
+|:--|:--|
+|①名前|M5-Security|
+|②サイズ|Full <br/>※どのサイズでもいい|
+|③エンドポイントURL|https://www.google.com/ <br/>※とりあえず、どのURLでもいい（後で設定するため）|
+|④オプション|必ずONにする|
+
+![LIFFの設定を行う](images/chapxx-gaomar/g514.png)
+
+### LINE Things 自動通信機能サービスUUID発行
