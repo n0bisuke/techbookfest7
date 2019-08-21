@@ -1,55 +1,60 @@
-# LINE Pay での決済とLINE Things に対応したドリンクバーのプロトタイプを開発する
+# LINE Pay 決済とLINE Things に対応したドリンクバーを開発する
 
-最近は『○○Pay』 がたくさん登場し、大規模なポイントバックキャンペーンが展開されたり、一部のキャッシュレス決済サービスがサービス開始早々にセキュリティ問題が発覚してサービス終了になったりと、良い意味でも悪い意味でも話題になったこともあり、一般消費者にもキャッシュレス決済が認知されてきました。
+最近はキャッシュレス決済サービス『○○Pay』 が数多く登場し、大規模なポイントバックキャンペーンが展開されたり、一部のサービスが開始早々にセキュリティ問題が発覚してサービス終了を迎えたりと、良い意味でも悪い意味でも話題になったこともあり、一般消費者にもキャッシュレス決済が認知されてきました。
 
-キャッシュレス決済が一般に認知され、決済のAPI が公開されているのであれば、我々個人開発者も自分のサービスに決済機能を付けて、一儲けとまでは行かなくても運用費＋お小遣いくらいは稼げるのではないか、ということでAPI が公開されているLINE Pay API と、LINE アプリからハードウェアを操作できるLINE Things、LINE Bot などを開発できるLINE Messaging API を使ったプロトタイプ「LINE Things Drink Bar」を開発しました。
+キャッシュレス決済が一般に認知され、決済のAPI が公開されているのであれば、我々個人開発者も自分のサービスに決済機能を付けて、一儲けとまでは行かなくても運用費＋お小遣いくらいは稼げそうです。
+
+また、キャッシュレス決済サービスの一つ「LINE Pay」は、数あるサービスの中でもAPI が告解されているだけでなく、LINE 自体の国内での月間アクティブユーザー数が8000万人以上、日間・月間アクティブ率が86%と圧倒的なシェアを占めており、周りでもほとんどの人が利用している最早インフラとも言えるプラットフォームであるため、このLINE プラットフォームを利用することで個人開発サービスでも多くの利用者、ひいてはサービス利用料などの決済件数も見込めそうです。
+
+今回は、LINE Pay API と、LINE アプリからハードウェアを操作できるLINE Things、LINE Bot などを開発できるLINE Messaging API を利用したプロトタイプ「LINE Things Drink Bar」を開発しました。
 
 
 ## LINE Things Drink Bar とは
 
-「LINE Things Drink Bar」は、LINE Pay での決済機能と、LINE アプリからハードウェアを操作できるIoT プラットフォームであるLINE Things に対応した自動販売機のプロトタイプです。
-いわゆるカップ式自動販売機で、商品（ジュース）選択から支払い（LINE Pay での決済）、ハードウェアへのジュース抽出の指示、購入後の抽選に至る全てを日常で頻繁に使うLINE アプリ一つで操作することができます。
+「LINE Things Drink Bar」は、LINE Pay での決済機能と、LINE アプリからハードウェアを操作できるIoT プラットフォームであるLINE Things に対応したジュースの自動販売機のプロトタイプです。いわゆるカップ式自動販売機です。
+商品（ジュース）の選択から支払い（LINE Pay での決済）、ハードウェアへのジュース抽出の指示、購入後の抽選に至る全てをLINE アプリ一つで操作できます。
 
-ここまでの話だけでは自動販売機の操作をLINE アプリで出来るようにしただけではないか、と思われるかもしれませんが、LINE 対応することでユーザー個々を識別できる（LINE の各API ではユーザー固有の識別子 *userId* が利用できる）ます。
-つまり、ユーザー単位で、いつ・どの商品を、どの自動販売機で購入した（または購入しなかった）かなどが把握できることになります。従来の自動販売機では取得できなかったユーザー単位の情報が取得できることで、ユーザー個別に販売促進（おすすめ）なども行えるようになります。
+ここまでの話では自動販売機の操作をLINE アプリで出来るようにしただけではないか、と思われるかもしれませんが、LINE に対応することでユーザー個々を識別（LINE の各API ではユーザー固有の識別子 *userId* が利用）できます。
+つまり、ユーザー単位で、いつ・どの商品を、どの自動販売機で購入した（または購入しなかった）かなどが把握できます。さらにLINE Things に対応することで、従来の自動販売機などオフラインのみのサービスでは取得できなかったユーザー単位の情報も取得できるようになります。
 
-LINE Pay とLINE Things などを組み合わせることで、これまでネットサービス以外では把握が難しかったユーザー単位での利用状況が、自動販売機だけでなく色んな場面で把握できるようになるため、ユーザーの利用状況を踏まえたサービスを展開することも可能になります。
+LINE Pay とLINE Things などを組み合わせることで、これまでオンラインでのサービス以外では把握が難しかったユーザー単位での利用状況が、自動販売機だけでなく様々なオフラインの場面でも把握できるようになるため、オンラインとオンライン両方のユーザー行動履歴を掛け合わせたレコメンドなど、これまでにないサービスを展開することも可能になります。
 
-なお、今回掲載する内容はLINE Pay API を使った実装の解説を主眼にしたプロトタイプです。
-実際のサービスとしてリリースするには、商品の在庫管理や認証や認可などに関する考慮・実装が必要となりますので、ご承知おきください。
+本章ではLINE Pay API を使った部分の実装を主眼に解説します。
+なお、今回はプロトタイプの実装となります。実際のサービスとしてリリースするには、商品の在庫管理や認証や認可などに関する考慮・実装が必要となりますので、ご承知おきください。
 
-![LINE Things Drink Bar](images/chapxx-sumihiro3/LineThingsDrinkBarOverview.png)
+![LINE Things Drink Barの外観](images/chapxx-sumihiro3/LineThingsDrinkBarOverviewAtMFT2019.png)
 
+「LINE Things Drink Bar」は、LINE Things とLINE Pay のプロトタイプとして、メイカーズバザール大阪  2019や、Maker Faire Tokyo 2019 などにおいて、LINE 社のブースにて展示・デモ稼働させていただきました。
 
 ## システム構成
 
-ここまでは事務的な作業でしたが、ココから本筋の開発に関する内容です。
-
 システム構成は下図のようになっています。
-LINE Messaging API やLINE Pay API との連携はheroku 上に構築したサーバーを介して行います。
-LINE アプリ上で実行されるウェブアプリケーションはLINE Front-end Framework（以下、LIFF）として実行されます。LIFF としてウェブアプリケーションが実行されることで、操作するLINE ユーザーを一意に識別できる *userId* や表示名などを取得できるようになります。
+LINE Messaging API やLINE Pay API との連携は、クラウド・アプリケーション・プラットフォームであるHeroku 上に構築したサーバーを介して行います。
+
+LINE アプリ上で実行されるウェブアプリケーションはLINE Front-end Framework（以下、LIFF）として実行されます。ウェブアプリケーションがLIFF として実行されることで、サービスを利用するLINE ユーザーを一意に識別できる *userId* や表示名などを取得できるようになります。
 
 ![LINE Things Drink Bar システム構成図](images/chapxx-sumihiro3/SystemOverview.png)
 
-フロントサイドはVue.js 、サーバーサイドはウェブアプリケーション フレームワークのFlask で実装します。
-商品情報の取得や注文情報の登録はサーバーサイドで提供するAPI をフロントからaxios モジュールを利用して実行するという構成になっています。
+ウェブアプリケーションのフロントサイドはVue.js 、サーバーサイドはウェブアプリケーション フレームワークのFlask で実装します。
+商品情報の取得や注文情報の登録はサーバーサイドで提供するAPI を、フロントサイドから実行するという構成になっています。
 
 ### サーバーサイドの構成
 
-- heroku
+- Heroku
     - Docker
-    - Python
-        - Flask
-        - SQL Alchemy 
-        - Requests
+        - 実装したウェブアプリケーションをDocker イメージでHeroku にデプロイする
     - Heroku Postgres
-        - PostgreSQL をheroku アプリケーションから利用できるheroku のアドオン
+        - PostgreSQL をHeroku アプリケーションから利用できるHeroku のアドオン
             - 無料枠あり
     - QuotaGuard Static
-        - 固定IPで外部アクセスするためのプロキシ を利用できるheroku のアドオン
+        - 固定IPで外部アクセスするためのプロキシを利用できるHeroku のアドオン
             - 無料枠あり
             - LINE Pay API アクセス時に固定IPアドレスが必要なため
             - なお、LINE Pay API Sandbox 環境では固定IP は必須ではない
+- Python
+    - Flask
+    - SQL Alchemy 
+    - Requests
 - LINE Messaging API
     - LINE Messaging API 用SDK のPython版
 - LINE Pay API
@@ -65,19 +70,37 @@ LINE アプリ上で実行されるウェブアプリケーションはLINE Fron
 - LINE Things
     - LINE アプリを介して、チャネルとBluetooth® Low Energy 対応デバイスを連携し、操作を可能にするIoT プラットフォーム
 
+### ハードウェアの構成
+
+- LINE Things development board
+    - Nordic Semiconductor nRF52832 を搭載したLINE Things 実験用ボード
+- モータードライバー
+- エアーポンプ
+    - ドリンクの抽出用
+- PET ボトル
+- 電源
+    - モバイルバッテリー
+        LINE Things development board 用
+    - 9V 電池
+        エアーポンプ用
+
+![LINE Things Drink Bar ハードウェア部分](images/chapxx-sumihiro3/LineThingsDrinkBarInside.png)
+
 ### ソースコード
 
-LINE Things Drink Bar で使用しているソースコードは、本書では紙面の都合によりすべて掲載できませんので、Github のリポジトリで公開しています。
-本書と合わせて確認してください。
+LINE Things Drink Bar で使用しているソースコードは、本章では紙面の都合によりすべて掲載できませんので、Github のリポジトリで公開しています。
+本章と合わせて確認してください。
 
 - LINE Things Drink Bar のソースコード
-    - https://github.com/line-developer-community/techbookfest7
+    - https://github.com/sumihiro3/LineThingsDrinkBar
 
 
 ## LINE Pay APIを使った決済の流れ
 
-LINE Pay での決済には3つの登場人物が存在します。一つ目は **サービスプロバイダー** です。これは有償で商品またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。本書ではLINE Things Drink Bar が相当します。
+LINE Pay での決済には3つの登場人物が存在します。一つ目は **サービスプロバイダー** です。これは有償で商品を販売またはサービスを提供する事業主（おそらくあなた）で、実質的に何らかのアプリとなります。本書ではLINE Things Drink Bar が相当します。
+
 二つ目は その商品またはサービスを購入する **ユーザー** です。
+
 そして三つ目は **LINE Pay**です。サービスプロバイダーはLINE PayのAPIに、ユーザーはLINE Payのアプリにアクセスして下記の流れで決済をおこなうことになります。
 
 ![LINE Pay API 概要図](images/chapxx-sumihiro3/LINEPayAPIOverview.png)
@@ -88,33 +111,32 @@ LINE Pay での決済には3つの登場人物が存在します。一つ目は 
 
 ### 決済予約
 
-サービスプロバイダーは商品、金額など決済情報を決済予約のAPI（Reserve API）に送信し、決済URLを取得します。
+サービスプロバイダーは商品、金額など決済情報を決済予約のAPI（Reserve API） に送信し、決済URLを取得します。
 
 ### ユーザーによる承認
 
-取得した決済URLをユーザーに提供し、ユーザーが決済URLに進みます。LINE Payが起動して商品と金額が表示され、ユーザーはその情報を確認の上、決済承認をおこないます。
+取得した決済URL をユーザーに提供し、ユーザーは決済URL に進みます。LINE Payが起動して商品と金額が表示され、ユーザーはその情報を確認の上、決済承認をおこないます。
 
 ### 決済実行
 
-ユーザーが承認すると、任意のURLへのリダイレクトまたは任意のURLへのPOSTリクエストにてサービスプロバイダーに通知されます。その時点で決済を実行できる状態となっていますので、あとは決済実行のAPI（Confirm API）にアクセスすれば決済完了となります。
+ユーザーが承認すると、任意のURL へのリダイレクトまたは任意のURL へのPOST リクエストにてサービスプロバイダーに通知されます。その時点で決済を実行できる状態となっているので、あとは決済実行のAPI（Confirm API）に アクセスすれば決済完了となります。
 
 
 ## LINE Things Drink Bar での購入・決済の流れ
 
 ユーザーはLINE アプリで次のような操作をしてドリンクを購入します。
 
-1. 自動販売機の近くでLINE アプリを起動する
-2. 購入する商品（ドリンク）を選択する
-3. 注文情報を登録し決済予約を行う
-4. LINE Pay 決済画面で購入内容を確認して決済を実行する
-5. 決済完了後にドリンク抽出画面を確認する
-6. 抽選ボタンを押下して購入後のお楽しみ抽選を行う
+1. ユーザーは、自動販売機の近くでLINE アプリを起動する
+2. ユーザーは、購入する商品（ドリンク）を選択する
+3. LINE Things Drink Bar は、注文情報を登録し決済予約を行う
+4. ユーザーは、LINE Pay 決済画面で購入内容を確認して決済を実行する
+5. LINE Things Drink Bar は、決済完了後にドリンクを抽出する
+6. ユーザーは、抽選ボタンを押下して購入後のお楽しみ抽選を行う
 
-<<<<<<<< LINE Things Drink Bar 画面遷移図 >>>>>>>>
 ![LINE Things Drink Bar での購入・決済の流れ](images/chapxx-sumihiro3/LineThingsDrinkBarFlow.png)
 
 
-## LINE Pay 導入
+## LINE Pay の導入
 
 ここからはLINE Pay を開発するサービスで導入するための作業について説明します。
 作業の流れは以下のとおりです。
@@ -132,13 +154,14 @@ LINE Pay での決済には3つの登場人物が存在します。一つ目は 
 LINE Pay の加盟店になるには法人でなくとも大丈夫です。個人で加盟店申請するには、個人事業主として開業届を出して青色申告をしてあればOKです。
 LINE Pay 公式の「よくある質問」にも、個人事業主でも加入できると書いてあります。
 
-[個人事業主も加入できますか？：よくある質問＠LINE Pay](https://pay.line.me/jp/intro/faq?locale=ja_JP&sequences=14)
+- 個人事業主も加入できますか？：よくある質問＠LINE Pay
+    - https://pay.line.me/jp/intro/faq?locale=ja_JP&sequences=14
 
 加盟店申請とは関係ないですが、青色申告をしていれば、していない場合（白色申告）に比べて所得の控除額が大きく、減価償却の特例が受けられる（30万円未満の固定資産を一括償却できる。上限あり）など税金面での優遇がありますので、副業などをしている方は青色申告しておくのをお勧めします。
 
 #### 青色申告するには
 
-本記事はIT技術記事なので細かいことは書きませんが、開業届と青色申告承認申請書のフォーマットに沿って記載して、所管の税務署に提出するだけです。
+本章では詳細な申告方法については触れませんが、開業届と青色申告承認申請書のフォーマットに沿って記載して、所管の税務署に提出するだけです。
 申告書類を簡単に作成できるサービスもたくさんあるので、検索してみてください。
 
 #### LINE Pay 加盟店申請に必要な書類など
@@ -147,25 +170,29 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 
 - 開業届または確定申告書の控え
 - 本人確認書類（運転免許証など）
-  - 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください。
+  - 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください
 - Web サイト
 
 特別なものはありませんね。それではいよいよ加盟店申請です。
 
 ![LINE Pay 加盟店申請ページ](images/chapxx-sumihiro3/LINEPayAppForMenber.png =1280x)
 
-[LINE Pay 加盟店申請ページ](https://pay.line.me/jp/intro?locale=ja_JP)ページ（リンク先の右上赤枠部分）にアクセスしてください。
+LINE Pay 加盟店申請ページ上部の「申請」リンクをクリックして、加盟店申請フォームを開いてください。
+
+- LINE Pay 加盟店申請ページ
+    - https://pay.line.me/jp/intro?locale=ja_JP
+
 
 #### 加盟店申請
 
-個人でLINE Pay API を使う加盟店申請を行うのであれば、申請画面で以下のように選択して申請を進めます。
+個人でLINE Pay API を使う加盟店申請を行うのであれば、加盟店申請フォームで以下のように選択して申請を進めます。
 
 - 事業種別：個人事業主
 - 支払い方法：オンライン
 
-![LINE Pay 加盟店申請](images/chapxx-sumihiro3/LINEPayAppForMember.png)
+![加盟店申請フォーム](images/chapxx-sumihiro3/LINEPayAppForMember.png)
 
-あとは、規約を読んで同意し、必要書類をスキャンしてPDF 形式などにして、スキャンしたファイルを申請ページから必要事項の記入とともにアップロードするだけです。
+あとは、規約を読んで同意し、必要書類をスキャンしてPDF ファイルを作成し、スキャンしたファイルを加盟店申請フォームから必要事項の記入とともにアップロードするだけです。
 
 #### 審査と登録完了通知
 
@@ -176,91 +203,95 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 
 ### LINE Pay Sandboxの申請と設定
 
-実際に決済するには加盟店登録が必要ですが、開発して動作を確認するフェーズであればSandbox が利用できます。こちらは下記のURLから申請すると払い出されるLINE Pay API用のアカウントで、誰でもすぐに利用できます。
+実際に決済するには加盟店登録が必要ですが、開発して動作を確認するフェーズであればSandbox が利用できます。こちらは下記のURLから申請すると、Sandbox 用のLINE Pay API アカウントが払い出されますので、誰でもすぐに利用できます。
 
-https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP
+- LINE Pay Sandboxの申請
+    - https://pay.line.me/jp/developers/techsupport/sandbox/creation?locale=ja_JP
 
-アカウントが払い出されたらLINE Payコンソールの決済連動管理 > 連動キー管理からChannel ID とChannel Secret Key を確認します。これらの値はLINE Pay のAPI コールに必要になります。
+アカウントが払い出されたらLINE Pay コンソールの決済連動管理 > 連動キー管理からChannel ID とChannel Secret Key を確認します。これらの値はLINE Pay のAPI コールに必要になります。
 ![連動キー管理](images/chapxx-sumihiro3/LinkKey.png)
 
 
 ## 開発
 
-### サーバー（heroku）の準備
+### サーバー（Heroku）の準備
 
-#### heroku CLI のインストール
+ここまでは事務的な作業でしたが、ここから本筋の開発に関する内容です。
 
-[heroku](https://jp.heroku.com/) に登録し、ターミナルなどのCLI から操作できるheroku CLI をインストールします。
+#### Heroku CLI のインストール
+
+[Heroku](https://jp.Heroku.com/) へのアプリケーションやアドオンの登録・設定をターミナルなどのCLI から操作できるHeroku CLI をインストールします。
 Mac で開発する場合はbrew を使ってインストールできます。
 
 ```bash
-$ brew tap heroku/brew && brew install heroku
+$ brew tap Heroku/brew && brew install Heroku
 ```
 
 #### アプリケーションの作成
 
-ここからheroku CLI を使ってアプリケーションの登録などをしていきます。
+ここからHeroku CLI を使ってアプリケーションの登録などをしていきます。
 
-まずはログイン。ログインコマンドを入力すると、ブラウザでheroku のログインページが表示されるのでこちらからログインします。
+まずはログイン。ログインコマンドを入力すると、ブラウザでHeroku のログインページが表示されるのでログインします。
 
 ```bash
-$ heroku login
-heroku: Press any key to open up the browser to login or q to exit: 
-Opening browser to https://cli-auth.heroku.com/auth/browser/xxxxxxxxx
+$ Heroku login
+Heroku: Press any key to open up the browser to login or q to exit: 
+Opening browser to https://cli-auth.Heroku.com/auth/browser/xxxxxxxxx
 Logging in... done
 Logged in as xxxx@xxxx.com
 ```
 
 続けてアプリケーションを作成します。
 
-- YOUR_APP_NAME にはheroku 全体で一意となるアプリケーション名を指定します。
+- 「YOUR_APP_NAME」 にはHeroku 全体で一意となるアプリケーション名を指定します。
 
 ```bash
-$ heroku create {YOUR_APP_NAME}
-Creating ⬢ {YOUR_APP_NAME}... done
-https://{YOUR_APP_NAME}.herokuapp.com/ | https://git.heroku.com/{YOUR_APP_NAME}.git
+$ Heroku create {YOUR_APP_NAME}
+Creating {YOUR_APP_NAME}... done
+https://{YOUR_APP_NAME}.Herokuapp.com/ | https://git.Heroku.com/{YOUR_APP_NAME}.git
 ```
 
 #### データベースの登録
 
-heroku CLI でHeroku Postgres のデータベース登録します。
+Heroku CLI でHeroku Postgres アドオンのデータベース登録します。
 
 ```bash
-$ heroku addons:create heroku-postgresql:hobby-dev -a {YOUR_APP_NAME}
-Creating heroku-postgresql:hobby-dev on ⬢ {YOUR_APP_NAME}... free
+$ Heroku addons:create Heroku-postgresql:hobby-dev -a {YOUR_APP_NAME}
+Creating Heroku-postgresql:hobby-dev on {YOUR_APP_NAME}... free
 Database has been created and is available
  ! This database is empty. If upgrading, you can transfer
  ! data from another database with pg:copy
 Created postgresql-reticulated-xxxxx as DATABASE_URL
-Use heroku addons:docs heroku-postgresql to view documentation
+Use Heroku addons:docs Heroku-postgresql to view documentation
 ```
 
 #### 固定IPでのアクセス用プロキシの登録
 
-heroku CLI でQuotaGuard Static の固定IPでのアクセス用プロキシを設定します。
+Heroku CLI でQuotaGuard Static アドオンの固定IPでのアクセス用プロキシを設定します。
 
 ```bash
-$ heroku addons:create quotaguardstatic:starter -a {YOUR_APP_NAME}
-Creating quotaguardstatic:starter on ⬢ {YOUR_APP_NAME}... free
+$ Heroku addons:create quotaguardstatic:starter -a {YOUR_APP_NAME}
+Creating quotaguardstatic:starter on {YOUR_APP_NAME}... free
 Your static IPs are [xx.xxx.xx.xx, xxx.xxx.xxx.xxx]
 Created quotaguardstatic-clean-xxxxx as QUOTAGUARDSTATIC_URL
-Use heroku addons:docs quotaguardstatic to view documentation
+Use Heroku addons:docs quotaguardstatic to view documentation
 ```
 
-環境変数「QUOTAGUARDSTATIC_URL」にプロキシURL が自動で設定されます。
+設定が完了すると環境変数「QUOTAGUARDSTATIC_URL」にプロキシURL が自動で設定されます。
 
 
 ### コンテナの準備
 
-heroku にはDocker を使ってコンテナでウェブアプリケーションをデプロイします。
+Heroku にはDocker を使ってコンテナでウェブアプリケーションをデプロイします。
 
 #### Dockerfile
 
 コンテナのビルド時に実行する処理をDockerfile で設定します。
 
+- Python 3.6 のイメージを使用
 - Python からPostgreSQL を使うために関連のモジュールをインストール
 - 「requirements.txt」に記載したサーバーサイドのPython プログラムで使うライブラリをインストール
-- プログラムのコードもコンテナ内にコピー
+- プログラムのコード類をコンテナ内にコピー
 - ウェブアプリケーションを起動
 
 ```
@@ -288,8 +319,7 @@ CMD flask run -h 0.0.0.0 -p $PORT --debugger --reload
 
 Python プログラムで使うライブラリはrequirements.txt に定義します。
 
-ウェブアプリケーション フレームワークに「Flask」、データベース（PostgreSQL）へのアクセス用に「psycopg2」、ORマッパーとして「SQLAlchemy」を使っています。
-また、LINE Pay API や、Flask で構築するウェブアプリケーションのAPI への接続には「requests」を利用します。
+ウェブアプリケーション フレームワークに「Flask」、データベース（PostgreSQL）へのアクセス用に「psycopg2」、ORマッパーとして「SQLAlchemy」を使っています。また、LINE Pay API への接続には「requests」を利用します。
 
 ```
 flask
@@ -301,11 +331,11 @@ requests
 line-bot-sdk
 ```
 
-### 商品選択画面
+### ドリンクバー画面
 
-ユーザーが操作して商品を選択する画面です。
+商品を選択するなど「LINE Things Drink Bar」のメインとなる画面です。
 
-商品選択画面をはじめフロント側はVue.js で作成しています。今回の解説では画面数も少ないのでコンポーネント化はせずに、HTML ファイルベースで開発します。また、この画面をLIFF として登録しておきます。
+ドリンクバー画面をはじめフロント側はVue.js で作成しています。今回の解説では画面数も少ないのでコンポーネント化はせずに、HTML ファイルベースで開発します。また、この画面をLIFF として登録しておきます。
 
 この画面で出来ることは以下のとおりです。
 
@@ -316,9 +346,9 @@ line-bot-sdk
 
 ### ドリンク一覧の表示
 
-LINE アプリから商品選択画面のLIFF URL を選択するとFlask の下記URL にGET リクエストが送られます。
+LINE アプリのリッチメニューからドリンクバー画面にアクセスするとを選択すると、Flask の下記関数にGET リクエストが送られます。
 
-このリクエストを受けたFlask のプログラム（main.py）がテンプレートエンジン（Jinja2）で商品選択画面のHTML ファイル（drink_bar.html）を返します。
+このリクエストを受けたプログラム（main.py）がテンプレートエンジン（Jinja2）でドリンクバー画面のHTML ファイル（drink_bar.html）を返します。
 
 ```python
 @app.route('/drink_bar', methods=['GET'])
@@ -331,11 +361,11 @@ def get_drink_bar():
 
 #### HTML ファイル（drink_bar.html）
 
-商品選択画面のHTML ファイルです。
+ドリンクバー画面のHTML ファイルです。
 ドリンク一覧や、選択したドリンクの詳細と決済へ進むボタン、ドリンクの抽出状況などを表示します。
 それぞれの表示は処理のステータスを示す *flow_status* の状態に応じて切り替えています。
 
-下記では、ドリンク一覧を表示する部分について抜粋しています。
+下記では、ドリンク一覧を表示する部分を抜粋しています。
 
 ```html
 <!--    No order - Item list     -->
@@ -393,10 +423,10 @@ def get_drink_bar():
 
 #### 商品情報の取得処理
 
-商品選択画面で表示する商品情報をサーバーサイドから取得します。
+ドリンクバー画面で表示する商品情報をサーバーサイドから取得します。
 画面の初期化時にaxios を利用して、サーバーサイドで提供される商品情報取得APIを実行します。
 
-下記では、商品情報取得API の実行部分（drink_bar.js）について抜粋しています。
+下記では、商品情報取得API の実行部分（drink_bar.js）を抜粋しています。
 
 ```javascript
 getItems: async function() {
@@ -421,12 +451,13 @@ getItems: async function() {
 
 なお、LIFF 開発でデバッグなどに利用できる便利なツール「vConsole」があります。導入方法などは下記URL の記事を参照してください。
 
-- https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb
+- vConsole を使ってLIFF(LINE Front-end Framework) の開発を加速する
+    - https://qiita.com/sumihiro3/items/9f4f1adb5d8883d9ceeb
 
 
 #### 商品情報取得API
 
-商品選択画面のスクリプト（drink_bar.js）から呼び出される商品情報取得API です。
+ドリンクバー画面から呼び出される商品情報取得API です。（main.py）
 サーバーサイドではSQLAlchemy を使ってデータベースから商品情報を取得して返しています。
 
 ```python
@@ -467,7 +498,7 @@ def get_items():
 #### 注文情報の登録処理
 
 選択したドリンクを基にサーバーサイドへ注文情報の登録をリクエストします。
-axios を利用して、サーバーサイドで提供される注文情報登録API を実行します。
+サーバーサイドで提供される注文情報登録API を実行します。
 
 下記では、注文情報登録API の実行部分（drink_bar.js）について抜粋しています。
 
@@ -506,7 +537,7 @@ orderItem: async function(item_id) {
 
 #### 注文情報登録API
 
-商品選択画面のスクリプト（drink_bar.js）から呼び出される注文情報登録API です。
+ドリンクバー画面から呼び出される注文情報登録API です。（main.py）
 
 ```python
 @app.route('/api/purchase_order', methods=['POST'])
@@ -536,7 +567,7 @@ def post_purchase_order():
 ```
 
 データベースに注文情報を登録する部分はadd_purchase_order 関数で行います。
-なお、LINE Pay での決済では注文IDが重複不可のため、一意なIDを生成しておく必要があります。
+なお、LINE Pay での決済では注文IDは重複不可のため、一意となるIDを生成しておく必要があります。
 
 ```python
 def add_purchase_order(user, order_items):
@@ -613,12 +644,12 @@ payReserve: async function() {
 },
 ```
 
-サーバーサイドで提供される決済予約API を実行し、サーバーサイドから返されるLINE Pay の決済実行URL に遷移します。
+サーバーサイドで提供される決済予約API を実行し、決済予約API から返されるLINE Pay の決済実行URL に遷移します。
 
 
 #### 注文情報登録API
 
-商品選択画面のスクリプト（drink_bar.js）から呼び出される決済予約API です。
+ドリンクバー画面から呼び出される決済予約API です。（main.py）
 
 ```python
 @app.route("/pay/reserve", methods=['POST'])
@@ -712,23 +743,25 @@ def reserve_payment(
     return response.json()
 ```
 
-API のパラメータについては、LINE Pay 技術ドキュメントをご確認ください。
-- https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
+LINE Pay の決済予約API のパラメータについては、LINE Pay 技術ドキュメントをご確認ください。
+
+- LINE Pay技術連動ガイド
+    - https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
 
 #### LINE Pay の決済承認画面
 
-決済予約処理が正常に完了すると、下図のようにLINE Pay の決済承認画面が表示されます。ここはLINE Pay プラットフォーム側の画面となります。
+決済予約処理が正常に完了すると、下図のようにLINE Pay の決済承認画面が表示されます。この画面はLINE Pay プラットフォーム側の画面となります。
 注文情報（注文名や決済する金額）、指定した画像と決済承認ボタンが表示されています。
 
 ![決済承認画面](images/chapxx-sumihiro3/PayByLinePay.png)
 
-「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービス（LINE Things Drink Bar）のサーバーへ処理が返ってきます。
+「PAY NOW」と表示された決済承認ボタンを押下すると決済承認処理が行われ、決済承認完了画面が表示されます。この後、開発したサービス（LINE Things Drink Bar）のサーバーへ処理が返ります。
 
 ![決済承認完了](images/chapxx-sumihiro3/PayCompleted.png)
 
 ### 決済実行処理の実行
 
-LINE Pay 側からサーバーサイドの決済実行処理が呼び出されますので、決済実行API を呼び出して決済を完了させます。
+LINE Pay 側からサーバーサイドの決済実行処理が呼び出されますので、LINE Pay の決済実行API を呼び出して決済を完了させます。
 決済実行API が正常に完了すれば、注文情報のステータスを決済完了に更新します。
 
 ```python
@@ -756,11 +789,13 @@ def handle_pay_confirm():
 
 #### LINE Pay API 決済実行
 
-LINE Pay API を呼び出す部分です。
-API で設定された各種パラメータを設定して決済実行APIのURL（/v2/payments/{transaction_id}/confirm）へPOSTリクエストを送ります。
+LINE Pay の決済実行API を呼び出す部分です。
+API の各種パラメータを設定して決済実行APIのURL（/v2/payments/{transaction_id}/confirm）へPOSTリクエストを送ります。
 
 API のパラメータについては、LINE Pay 技術ドキュメントをご確認ください。
-- https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
+
+- LINE Pay技術連動ガイド
+    - https://pay.line.me/jp/developers/documentation/download/tech?locale=ja_JP
 
 ```python
     def confirm_payments(self, purchase_order):
@@ -784,73 +819,73 @@ API のパラメータについては、LINE Pay 技術ドキュメントをご�
 
 ![ドリンク抽出](images/chapxx-sumihiro3/DispensingDrink.png)
 
-ドリンク抽出後はお楽しみ抽選が実行され、確率で当たり／はずれが決定されます。
+ドリンク抽出後はお楽しみ抽選が実行され、確率で当たりか、はずれが決定されます。
 
 ![抽選完了](images/chapxx-sumihiro3/FukubikiDone.png)
 
 以上でLINE Pay 決済に関わる部分の実装が完了します。
-本書では決済完了後のLINE Things でのDrink Bar の制御部分や、購入後のお楽しみ抽選に関するコードの解説は行いませんが、前述の通りソースコードをGithub のリポジトリで公開していますので、そちらを御覧ください。
+本章では決済完了後のLINE Things でのDrink Bar の制御部分や、購入後のお楽しみ抽選に関するコードの解説は行いませんが、前述の通りソースコードをGithub のリポジトリで公開していますので、そちらをご覧ください。
 
 
-### heroku へのデプロイ
+## Heroku へのデプロイ
 
-実装が完了したので、heroku にLINE Things Drink Bar のプログラムをデプロイします。
+実装が完了したので、Heroku にLINE Things Drink Bar のプログラムをデプロイします。
 
-#### 環境変数の設定
+### 環境変数の設定
 
-デプロイの前にLINE Things Drink Bar で使用する環境変数をheroku に登録しておきます。
+デプロイの前にLINE Things Drink Bar で使用する環境変数をHeroku に登録しておきます。
 
-##### LINE Bot のChannel Secretとアクセストークン
+#### LINE Bot のChannel Secretとアクセストークン
 
 これらの情報はLINE Developers の画面から取得できます。
 
 ```bash
-$ heroku config:set LINEBOT_CHANNEL_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxx -a {YOUR_APP_NAME}
-$ heroku config:set LINEBOT_CHANNEL_SECRET=xxxxxxxxxx -a {YOUR_APP_NAME}
+$ Heroku config:set LINEBOT_CHANNEL_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxx -a {YOUR_APP_NAME}
+$ Heroku config:set LINEBOT_CHANNEL_SECRET=xxxxxxxxxx -a {YOUR_APP_NAME}
 ```
 
-##### LINE Pay API のChannel ID など
+#### LINE Pay API のChannel ID など
 
 これらの情報はLINE Pay API Sandbox の画面から取得できます。
 
 LINE_PAY_CONFIRM_URL は、LINE Pay での決済承認後、自分のサーバーに返ってくるURLを指定します。
 
 ```bash
-$ heroku config:set LINE_PAY_URL=https://sandbox-api-pay.line.me -a {YOUR_APP_NAME}
-$ heroku config:set LINE_PAY_CHANNEL_ID=xxxxxxxxx -a {YOUR_APP_NAME}
-$ heroku config:set LINE_PAY_CHANNEL_SECRET=xxxxxxxxxxxx -a {YOUR_APP_NAME}
-$ heroku config:set LINE_PAY_CONFIRM_URL=https://{YOUR_APP_NAME}/pay/confirm -a {YOUR_APP_NAME}
+$ Heroku config:set LINE_PAY_URL=https://sandbox-api-pay.line.me -a {YOUR_APP_NAME}
+$ Heroku config:set LINE_PAY_CHANNEL_ID=xxxxxxxxx -a {YOUR_APP_NAME}
+$ Heroku config:set LINE_PAY_CHANNEL_SECRET=xxxxxxxxxxxx -a {YOUR_APP_NAME}
+$ Heroku config:set LINE_PAY_CONFIRM_URL=https://{YOUR_APP_NAME}/pay/confirm -a {YOUR_APP_NAME}
 ```
 
-##### psycopg2 でのアクセスで使用するデータベスURL
+#### psycopg2 でのアクセスで使用するデータベスURL
 
-SQL Alchemy でのデータベース接続情報はheroku のHeroku Postgres 設定画面などで確認できます。
+SQL Alchemy でのデータベース接続情報はHeroku のHeroku Postgres 設定画面などで確認できます。
 
 ```bash
-$ heroku config:set POSTGRESQL_DATABASE_URL=postgres+psycopg2://{DB_USER_ID}:{DB_USER_PASSWORD}@{DB_SERVER_URL}:5432/{DB_NAME} -a {YOUR_APP_NAME}
+$ Heroku config:set POSTGRESQL_DATABASE_URL=postgres+psycopg2://{DB_USER_ID}:{DB_USER_PASSWORD}@{DB_SERVER_URL}:5432/{DB_NAME} -a {YOUR_APP_NAME}
 ```
 
-##### 固定IPアクセス用のプロキシURL
+#### 固定IPアクセス用のプロキシURL
 
 固定IPアクセス用のプロキシURL に関する環境変数は、QuotaGuard Static アドオン登録時に登録されますので追加設定は不要です。
 
-#### コンテナのデプロイ
+### コンテナのデプロイ
 
-いよいよLINE Things Drink Bar のプログラムをheroku にリリースします。
+いよいよLINE Things Drink Bar のプログラムをHeroku にリリースします。
 
-heroku のコンテナサービスにログインして、コンテナイメージをpush、heroku アプリケーションとしてリリースします。
+Heroku のコンテナサービスにログインして、コンテナイメージをpush、Heroku アプリケーションとしてリリースします。
 
 ```bash
-// login to heroku container
-$ heroku container:login
+// login to Heroku container
+$ Heroku container:login
 Login Succeeded
 
-// push container image to heroku container
-$ heroku container:push -a {YOUR_APP_NAME} web
+// push container image to Heroku container
+$ Heroku container:push -a {YOUR_APP_NAME} web
 Your image has been successfully pushed. You can now release it with the 'container:release' command.
 
 // release application
-$ heroku container:release -a {YOUR_APP_NAME} web
+$ Heroku container:release -a {YOUR_APP_NAME} web
 Releasing images web to {YOUR_APP_NAME}
 ```
 
@@ -859,10 +894,11 @@ Releasing images web to {YOUR_APP_NAME}
 
 ## 最後に
 
-解説が長くなりましたが、基本的な決済機能の組み込みは以上です。
+基本的なLINE Pay 決済機能の組み込みは以上です。
 サービスとして公開するにはキャンセル処理なども実装する必要がありますが、他APIの呼び出しについても同様にAPI ドキュメントに沿ってパラメータを指定するだけです。
 
-また、今回はLINE Bot への組み込みで解説しましたがWeb ページへの組み込みもほぼ同じです。
-単純にLINE Pay での決済機能を利用するだけでなく、多くのユーザーが利用するLINE の特性を活かしてLINE Things などを組み合わせたWeb の世界以外とも連携したサービスを開発してはいかがでしょうか。
+また、今回はLINE Bot への組み込みで解説しましたがウェブアプリケーションへの組み込みもほぼ同じです。
 
-なお、LINE Things や、LIFF などの設定は本章では触れていませんが、他の章でLINE API Expert のみなさんが解説していますので、そちらを参考にしていただければと思います。
+LINE Pay での決済機能を利用するのも良いですが、多くのユーザーが利用するLINE の特性を活かしてLINE Messaging API や、LINE Things などを組み合わせたWeb の世界以外とも連携したサービスを開発してはいかがでしょうか。
+
+なお、LINE Things や、LIFF などの基本的な説明や、設定手順については本章では触れていませんが、他の章でLINE API Expert のみなさんが解説していますので、そちらを参考にしてください。
