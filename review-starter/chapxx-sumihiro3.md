@@ -170,7 +170,7 @@ LINE Pay 公式の「よくある質問」にも、個人事業主でも加入�
 
 - 開業届または確定申告書の控え
 - 本人確認書類（運転免許証など）
-  - 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください
+    - 運転免許証の場合、「運転免許証：変更事項があれば裏面含みます」と記載されていますが、裏面に記載がなくても裏表の提出が求められたので注意してください
 - Web サイト
 
 特別なものはありませんね。それではいよいよ加盟店申請です。
@@ -299,18 +299,19 @@ FROM python:3.6-alpine
 
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 
-# make working dir
+# 作業ディレクトリの作成
 RUN mkdir -p /app
 
-# Install dependencies
+# 依存ライブラリのインストール
 ADD requirements.txt /tmp
 RUN pip install --no-cache-dir -q -r /tmp/requirements.txt
 
-# Add app code
+# アプリケーションコード類をイメージ内にコピー
 ADD ./app /app
 WORKDIR /app
 
-# Run the app.  CMD is required to run on Heroku
+# Flask の起動 
+# CMD is required to run on Heroku
 ENV FLASK_APP /app/main.py
 CMD flask run -h 0.0.0.0 -p $PORT --debugger --reload
 ```
@@ -353,7 +354,7 @@ LINE アプリのリッチメニューからドリンクバー画面にアクセ
 ```python
 @app.route('/drink_bar', methods=['GET'])
 def get_drink_bar():
-    app.logger.info('handler get_drink_bar called!')
+    # ドリンクバー画面を表示
     return render_template(
         'drink_bar.html',
     )
@@ -375,7 +376,7 @@ def get_drink_bar():
             <v-toolbar color="green darken-2" dark>
                 <v-toolbar-title>LINE Things Drink Bar</v-toolbar-title>
             </v-toolbar>
-            <!-- items -->
+            <!-- 商品一覧 -->
             <v-card>
                 <v-container
                         fluid
@@ -393,6 +394,7 @@ def get_drink_bar():
                                         ></v-img>
                                     </v-flex>
                                     <v-flex xs7>
+                                    <!-- 商品情報 -->
                                         <v-card-title primary-title>
                                             <div>
                                                 <div><h4 class="pb-1">[[ item.name ]]</h4></div>
@@ -431,9 +433,9 @@ def get_drink_bar():
 ```javascript
 getItems: async function() {
     console.log('function getItems called!')
-    // Item 取得
     this.api_loading = true
     const api_url = '/api/items'
+    // 商品情報取得API 実行
     const response = await axios.get(api_url).catch(error => {
         console.error('API getItems failed...')
         console.error(error)
@@ -441,6 +443,7 @@ getItems: async function() {
         this.api_loading = false
     })
     console.log('API response: ', response)
+    // API 実行結果をVue.js の表示用変数へ
     this.api_result = response.data
     this.items = this.api_result.items
     this.api_loading = false
@@ -463,7 +466,7 @@ getItems: async function() {
 ```python
 @app.route('/api/items', methods=['GET'])
 def get_items():
-    app.logger.info('handler get_items called!')
+    # DB から商品情報を取得
     item_list = Item.query.filter(Item.active == True).all()
     app.logger.debug(item_list)
     items = []
@@ -478,7 +481,7 @@ def get_items():
         }
         app.logger.debug(item)
         items.append(item)
-    # return items
+    # 販売可能な商品一覧を返す
     app.logger.debug(items)
     return jsonify({
         'items': items
@@ -505,15 +508,15 @@ def get_items():
 ```javascript
 orderItem: async function(item_id) {
     console.log('function orderItem called!')
-    // 注文登録
     this.api_loading = true
+    // 注文情報
     let order_item_ids = [item_id]
-    // Order!
     const params = {
         user_id: this.line_user_id,
         order_items: order_item_ids
     }
     const url = '/api/purchase_order'
+    // 注文情報登録API 実行
     const response = await axios.post(url, params).catch(function (err) {
         this.api_loading = false
         console.error('API POST PurchaseOrder failed', err)
@@ -521,6 +524,7 @@ orderItem: async function(item_id) {
         throw err
     })
     console.log('Response: ', response)
+    // API 実行結果をVue.js の表示用変数へ
     this.api_result = response.data
     this.order.id = this.api_result.order_id
     this.order.title = this.api_result.order_title
@@ -534,7 +538,6 @@ orderItem: async function(item_id) {
 
 サーバーサイドで提供される注文情報登録API を実行し、取得した注文情報をVue.js の表示用変数に割り当てます。
 
-
 #### 注文情報登録API
 
 ドリンクバー画面から呼び出される注文情報登録API です。（main.py）
@@ -543,7 +546,6 @@ orderItem: async function(item_id) {
 @app.route('/api/purchase_order', methods=['POST'])
 def post_purchase_order():
     app.logger.info('handler post_purchase_order called!')
-    app.logger.debug('Request json: %s', request.json)
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     user = User.query.filter(User.id == user_id).first()
@@ -553,7 +555,7 @@ def post_purchase_order():
     order_items = request_dict.get('order_items', [])
     order_item_list = Item.query.filter(Item.id.in_(order_items))
     app.logger.debug('order_item_list: %s', order_item_list)
-    # order !
+    # // API 実行結果をVue.js の表示用変数へ
     order = add_purchase_order(user, order_item_list)
     ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
     # return
@@ -571,12 +573,12 @@ def post_purchase_order():
 
 ```python
 def add_purchase_order(user, order_items):
-    app.logger.info('add_purchase_order called!')
     # 一意な注文IDを生成する
     order_id = uuid.uuid4().hex
     timestamp = int(dt.now().timestamp())
     details = []
     amount = 0
+    # 注文情報を生成
     for item in order_items:
         detail = PurchaseOrderDetail()
         detail.id = order_id + '-' + item.id
@@ -626,8 +628,8 @@ payReserve: async function() {
         user_id: this.line_user_id,
         order_id: this.order.id
     }
+    // 決済予約API の実行
     const url = '/pay/reserve'
-    console.log('Payment URL:', url)
     const response = await axios.post(url, params).catch(function (err) {
         this.api_loading = false
         console.error('API POST PayReserve failed', err)
@@ -638,7 +640,7 @@ payReserve: async function() {
     this.api_result = response.data
     const payment_url = this.api_result.payment_url
     this.flow_status = 'PAYING'
-    // redirect to payment_url
+    // LINE Pay の決済画面へ移動
     window.location.href = payment_url
     this.api_loading = false
 },
@@ -654,25 +656,17 @@ payReserve: async function() {
 ```python
 @app.route("/pay/reserve", methods=['POST'])
 def handle_pay_reserve():
-    app.logger.info('handler handle_pay_reserve called!')
-    app.logger.debug('Request json: %s', request.json)
     request_dict = request.json
     user_id = request_dict.get('user_id', None)
     order_id = request_dict.get('order_id', None)
     # 注文情報とユーザー情報をデータベースから取得する
     order = PurchaseOrder.query.filter(PurchaseOrder.id == order_id).first()
-    app.logger.debug('PurchaseOrder: %s', order)
     user = User.query.filter(User.id == user_id).first()
-    app.logger.debug('User: %s', user)
     ordered_item = Item.query.filter(Item.id == order.details[0].item_id).first()
     app.logger.debug('Ordered Item: %s', ordered_item)
     # LINE Pay の決済予約API を実行してtransactionId を取得する
     response = pay.reserve_payment(order, product_image_url=ordered_item.image_url)
-    app.logger.debug('Response: %s', json_util.dump_json_with_pretty_format(response))
-    app.logger.debug('returnCode: %s', response["returnCode"])
-    app.logger.debug('returnMessage: %s', response["returnMessage"])
     transaction_id = response["info"]["transactionId"]
-    app.logger.debug('transaction_id: %s', transaction_id)
     # 取得したtransactionId を注文情報に設定してデータベースを更新する
     order.user_id = user.id
     order.transaction_id = transaction_id
@@ -702,7 +696,7 @@ def reserve_payment(
         capture=True,
         extras_add_friends=None,
         gmextras_branch_name=None):
-    logger.info('Method %s.reserve_payment called!!', self.__class__.__name__)
+    # LINE Pay の決済予約処理を実行
     line_pay_url = self.__line_pay_url
     line_pay_endpoint = f'{line_pay_url}/v2/payments/request'
     order_id = purchase_order.id
@@ -733,7 +727,7 @@ def reserve_payment(
         body['extras.addFriends'] = extras_add_friends
     if gmextras_branch_name is not None:
         body['gmextras.branchName'] = gmextras_branch_name
-    # リクエスト送信
+    # API 実行
     response = requests.post(
         line_pay_endpoint,
         json_util.dump_json(body).encode('utf-8'),
@@ -767,19 +761,20 @@ LINE Pay 側からサーバーサイドの決済実行処理が呼び出され�
 ```python
 @app.route("/pay/confirm", methods=['GET'])
 def handle_pay_confirm():
-    app.logger.info('handler handle_pay_confirm called!')
+    # 決済承認完了後、LINE Pay 側から実行される 
     transaction_id = request.args.get('transactionId')
     order = PurchaseOrder.query.filter_by(transaction_id=transaction_id).one_or_none()
     if order is None:
         raise Exception("Error: transaction_id not found.")
-    # run confirm API
+    # LINE Pay の決済実行API を実行
     response = pay.confirm_payments(order)
     app.logger.debug('returnCode: %s', response["returnCode"])
     app.logger.debug('returnMessage: %s', response["returnMessage"])
-
+    # 注文情報の決済ステータスを完了にする
     order.status = PurchaseOrderStatus.PAYMENT_COMPLETED.value
     db.session.commit()
     db.session.close()
+    # ドリンクバー画面を表示
     return render_template(
         'drink_bar.html',
         message='Payment successfully completed.',
@@ -799,13 +794,14 @@ API のパラメータについては、LINE Pay 技術ドキュメントをご�
 
 ```python
     def confirm_payments(self, purchase_order):
+        # LINE Pay の決済実行処理を実行
         line_pay_url = self.__line_pay_url
         line_pay_endpoint = f'{line_pay_url}/v2/payments/{purchase_order.transaction_id}/confirm'
         body = {
             'amount': purchase_order.amount,
             'currency': purchase_order.currency,
         }
-        # リクエスト送信
+        # 決済実行API を実行
         response = requests.post(
             line_pay_endpoint,
             json_util.dump_json(body).encode('utf-8'),
@@ -876,15 +872,15 @@ $ Heroku config:set POSTGRESQL_DATABASE_URL=postgres+psycopg2://{DB_USER_ID}:{DB
 Heroku のコンテナサービスにログインして、コンテナイメージをpush、Heroku アプリケーションとしてリリースします。
 
 ```bash
-// login to Heroku container
+# Heroku container にログイン
 $ Heroku container:login
 Login Succeeded
 
-// push container image to Heroku container
+# Heroku container にDocker イメージをPush
 $ Heroku container:push -a {YOUR_APP_NAME} web
 Your image has been successfully pushed. You can now release it with the 'container:release' command.
 
-// release application
+# ウェブアプリケーションをリリース
 $ Heroku container:release -a {YOUR_APP_NAME} web
 Releasing images web to {YOUR_APP_NAME}
 ```
