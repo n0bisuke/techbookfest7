@@ -672,7 +672,7 @@ module.exports.callMessageAction = async function callMessageAction(message) {
 INSTANCEID	メモしたinstanceのID
 CONTACTFLOWID	メモしたcontact-flowのID
 PHONENUMBER	ご自身の携帯電話番号 ※+81を先頭につけて数字のみにします
-                例)090-1234-5678 👉+819012345678
+            例)090-1234-5678 👉+819012345678
 SOURCEPHONENUMBER	Amazon Connectで取得した電話番号 ※+81を先頭につけて数字のみにします
 //}
 
@@ -1145,7 +1145,7 @@ $ vue add vuetify
 publicフォルダのindex.htmlファイルに下記SDKを追記します。
 
 
-//emlist[][html:抜粋]{
+//emlist[][html]{
 <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
 //}
 
@@ -1614,7 +1614,7 @@ void startAdvertising(void) {
 //}
 
 
-書き込むボードの設定は以下の通り
+書き込むボードの設定は以下の通りです。もし書き込みに失敗する場合は、Upload Speedの値を小さい値にして試してみてください。
 
 //table[tbl10][ボードの設定]{
 項目	値
@@ -1635,11 +1635,44 @@ LINEアプリを開いて、@<tt>{M5-Security}をタップします。
 
 
 
+//image[g610][M5-Securityをタップ]{
+//}
+
+
+
+
+M5Stackとペアリングをします。
+
+
+
+//image[g611][ペアリングをする]{
+//}
+
 ［今すぐ利用］をタップします。
 
 
 
-//image[g611][今すぐ利用をタップ]{
+//image[g612][今すぐ利用をタップ]{
+//}
+
+
+
+==== 動作確認する
+
+
+ペアリングができたら、そのまましばらくするとAmazon Connectから電話がかかってきます。
+電話口から発話される4桁の認証コードを覚えます。
+認証コードを覚えたら、LINEアプリのLINE Things画面をひらいて、マイデバイスにペアリング済みのデバイスが表示されます。
+
+
+
+今回の例だと@<tt>{M5-Security}部分をクリックすると、下からニョキッと表示されます。
+覚えた認証コードをテキストエリアに入力します。
+認証コードが一致していたらM5StackにUnlock画面が表示されます。
+
+
+
+//image[g613][動作確認をする]{
 //}
 
 
