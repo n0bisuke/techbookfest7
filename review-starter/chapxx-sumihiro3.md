@@ -897,4 +897,9 @@ Releasing images web to {YOUR_APP_NAME}
 
 LINE Pay での決済機能を利用するのも良いですが、多くのユーザーが利用するLINE の特性を活かしてLINE Messaging API や、LINE Things などを組み合わせたWeb の世界以外とも連携したサービスを開発してはいかがでしょうか。
 
-なお、LINE Things や、LIFF などの基本的な説明や、設定手順については本章では触れていませんが、他の章でLINE API Expert のみなさんが解説していますので、そちらを参考にしてください。
+なお、LINE Messaging API やLIFF、LINE Things に関する解説や環境設定手順などについては本章では触れていませんが、他の章でLINE API Expert のみなさんが解説していますので、そちらを参考にしてください。
+
+- LINE Messaging API
+    - *TODO 解説されている章へのリンク*
+- LINE Things
+    - *TODO 解説されている章へのリンク*
