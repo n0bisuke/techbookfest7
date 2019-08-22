@@ -55,10 +55,13 @@ Bluetoothを用いたものになると殆どのものが専用アプリをス�
 
 個人開発者はDeveloper Trialというデモ版のプランがあるので、こちらを利用して試してみましょう。
 
-=== 開発する上での前提知識
+=== 開発する上での前提知識と準備すること
 
 @<b>{IoT領域は総合格闘技}とよく言われますが、LINE Thingsも同様で開発にはLINE BOTやLIFFなどの知識が前提になります。
 もし、まだLINE BOTの開発をしたことがない人は、LINE BOT開発の章を参考に簡単なBOTを作ってからまた戻ってきましょう。
+
+また、開発するためにマイコンボードが必要になります。@<href>{https://github.com/line/line-things-starter,LINE Things Starter}のページを見るといくつかデバイスが掲載されていますが
+今回は初心者でも比較的触れやすく、購入価格も比較的廉価な@<href>{https://github.com/line/line-things-starter/tree/master/m5stick-c, M5SticC}を利用します。用意をお願いします。
 
 == LINE Thingsの開発を始める
 
@@ -67,8 +70,18 @@ Bluetoothを用いたものになると殆どのものが専用アプリをス�
 それではせっかく使っていきます。
 
 まずはLINE Thingsの機能を有効化します。
+現時点(2019年8月)でLINE Thingsは一般の人が利用するプロダクトというよりは開発者が各々のデバイスと連携するといった場面で利用することを想定しています。
+そのため、一度アクティベートして各々のLINEアカウントでLINE Thingsを扱えるようにするための準備が必要になります。
 
-ここの手順がちょっと慣れない人には難しいかもしれません。
+//image[2_activateqr][2_activateqr]{
+//}
+
+蛇足ですが、ちょうどスタートしたばかりのLINE OpenChatでも先行利用ユーザーはアクティベートが必要でした。
 
 === デバイスの登録
+
+LINE Tthings
+
+//image[3_linethingsgen_1][3_linethingsgen_1]{
+//}
 
