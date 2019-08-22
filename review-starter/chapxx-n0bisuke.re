@@ -148,76 +148,84 @@ LINE Beacon、LINE Simple Beacon、LINE Thingsの順番で実装の複雑さと�
 LINE Thingsには@<b>{従来のLINE ThingsとLINE Thingsの自動通信機能の二つがあります。}
 個人的には、区別が分かりにくい上にやれること的に別物だと思ってるのでこの投稿では、従来のLINE ThingsをLINE Things LIFF、自動通信機能をLINE Things Messageと呼ぶことにします。
 
-=== LINE Things LIFF(LIFF版)
+=== LINE Things LIFF (LIFF版)
+
+LIFFについて簡単に説明すると、LINEのアプリケーション内で動作するブラウザアプリケーションです。
+つまりWebサイトやWebアプリケーションのことで、実装はフロントエンドのJavaScriptになります。
+LINEアプリから起動することができるので、そのWebアプリではLINEの個人情報などにアクセスできるのが特徴です。
+
+LIFF版のLINE Thingsは、LIFF上のJavaScriptとデバイスがBLEで通信する技術になります。
+WebBluetoothというブラウザのJavaScriptでBLE制御が出来る仕様を参考に作られています。
+
+基本はBLEのGATTプロファイルで出来ることが出来るので、かなり自由度の高いことが出来ます。
+
+元々BLEはデバイスとデバイスの通信を行いますが、どちらかのデバイスがクライアント（セントラル）で、もう片方がサーバー（ペリフェラル）になるという特性があります。
+LINE ThingsではLINE側サーバーになることは出来ず、クライアントとしてのみ動作します。
+
+=== LINE Things Message (Message版)
+
+LIFFについて簡単に説明すると、LINEのアプリケーション内で動作するブラウザアプリケーションです。
+つまりWebサイトやWebアプリケーションのことで、実装はフロントエンドのJavaScriptになります。
+LINEアプリから起動することができるので、そのWebアプリではLINEの個人情報などにアクセスできるのが特徴です。
+
+LIFF版のLINE Thingsは、LIFF上のJavaScriptとデバイスがBLEで通信する技術になります。
+WebBluetoothというブラウザのJavaScriptでBLE制御が出来る仕様を参考に作られています。
+
+基本はBLEのGATTプロファイルで出来ることが出来るので、かなり自由度の高いことが出来ます。
+
+元々BLEはデバイスとデバイスの通信を行いますが、どちらかのデバイスがクライアント（セントラル）で、もう片方がサーバー（ペリフェラル）になるという特性があります。
+LINE ThingsではLINE側サーバーになることは出来ず、クライアントとしてのみ動作します。
+
 
 === LINE Things Message(Message版)
 
+LINEとデバイスがBLEで接続できる技術。
+LINEアプリを立ち上げてなくても利用可能
+APIの立ち位置としてはMessaging API > (LIFF) > LINE Things Messageという階層イメージです。
+LIFFをカッコ書きにしていますが、LIFFの開発は一切行わずに扱うことができるのでカッコ書きにしています。
+LINE Beaconよりも複雑な処理をしたいときに良さそう
+あまり良くないけど、無限連続通知ができる(後述)
+
+==== シナリオセットとトリガー/アクション
+
+//image[scenario][scenario]{
+//}
 
 == LINEのAPI群とLINE ThingsやLINE Beaconの立ち位置
 
 //image[2_map][2_map]{
 //}
 
+=== LINE BeaconやLINE Thingsの比較 
 
-== LINE Things Developer Trial
-
-現在はLINE Thingsは全てのユーザーや機器が接続できる訳ではなく、定められたパートナー企業が自社のプロダクトにLINE Thingsの仕組みを組み込んでいます。
-
-個人開発者はDeveloper Trialというデモ版のプランがあるので、こちらを利用して試してみましょう。
-
-=== 開発する上での前提知識と準備すること
-
-@<b>{IoT領域は総合格闘技}とよく言われますが、LINE Thingsも同様で開発にはLINE BOTやLIFFなどの知識が前提になります。
-もし、まだLINE BOTの開発をしたことがない人は、LINE BOT開発の章を参考に簡単なBOTを作ってからまた戻ってきましょう。
-
-また、開発するためにマイコンボードが必要になります。@<href>{https://github.com/line/line-things-starter,LINE Things Starter}のページを見るといくつかデバイスが掲載されていますが
-今回は初心者でも比較的触れやすく、購入価格も比較的廉価な@<href>{https://github.com/line/line-things-starter/tree/master/m5stick-c, M5SticC}を利用します。用意をお願いします。
-
-== LINE Thingsの開発を始める
-
-=== LINE Thingsを有効にする
-
-それではせっかく使っていきます。
-
-まずはLINE Thingsの機能を有効化します。
-現時点(2019年8月)でLINE Thingsは一般の人が利用するプロダクトというよりは開発者が各々のデバイスと連携するといった場面で利用することを想定しています。
-そのため、一度アクティベートして各々のLINEアカウントでLINE Thingsを扱えるようにするための準備が必要になります。
-
-//image[2_activateqr][2_activateqr]{
+//image[3_map][3_map]{
 //}
 
-蛇足ですが、ちょうどスタートしたばかりのLINE OpenChatでも先行利用ユーザーはアクティベートが必要でした。
+== LINE Thingsが使えるとデバイス
 
-=== LINE Things Starterを試す
+色々なマイコンボードがありますが、LINE Thingsが現状使えるデバイスを紹介します。
 
-本来は、自分でデバイスの登録を行い、アプリケーションを作成していきますが、LINE側がアプリケーションを自分で作らなくても試し始めることが出来るように、
-LINE Things Starterというチュートリアル用のアプリケーションを用意してくれています。
+* obniz
+* M5Stack
+* M5StickC
+* micro:bit
 
-まずはこちらを試して見ましょう。
+== LINE Things Messageの無限連続通知
 
-=== LINE Things シナリオセットジェネレータでデバイスの登録
+これは面白い仕様で、無限にPushメッセージが送信出来るといったものです。
 
-LINE Tthingsを使えるようにするためにはデバイスの登録用のAPIを使ってデバイス登録をするところからスタートします。
-
-通常はcurlなどのコマンドでAPIを叩いていきますが、レスポンスの値をコピーし直したりするのが大変なので@<href>{https://n0bisuke.github.io/linethingsgen/setting, LINE Thingsシナリオセットジェネレータ}を使います。
-
-==== LIFFアプリの作成
-
-まずはLIFFアプリケーションを作成します。
-LIFFアプリケーションに紐づく形で作成されます。
-
-LINE BOTの管理画面のLIFFのタブから追加していきます。
-
-//image[4_linethingsgen_2][4_linethingsgen_2]{
+//image[saori][saori]{
 //}
 
-==== アクセストークンの設定
+== まとめ
 
-Setting画面でまずはアクセストークンを設定しましょう。アクセストークンはLINE BOTを作成したときに生成されたものを利用します。
-
-//image[3_linethingsgen_1][3_linethingsgen_1]{
-//}
-
-=== Arduino IDE
-
-Arduino IDEを使ってM5StickCに書き込みをしていきましょう。
+LINE ThingsとLINE Beaconは別物
+LINE Things LIFFとLINE THings Messageも使い勝手的に別物
+LINE ThingsもLINE BeaconもLINE BOTの仲間です。
+LINE THings Messageの構成要素
+シナリオセット
+シナリオ
+トリガー
+アクション
+用途に合わせてLINE BeaconとLINE Thingsは使い分けしましょう
+シンプルな使い方だとLINE Beaconの方が簡単に出来る場合もあります。
