@@ -221,7 +221,6 @@ LINE Beaconよりも複雑な処理をしたいときに良さそう
 
 繋がらないときが結構あります。
 
-
 == まとめ
 
 LINE ThingsとLINE Beaconは別物
