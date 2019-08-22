@@ -217,6 +217,11 @@ LINE Beaconよりも複雑な処理をしたいときに良さそう
 //image[saori][saori]{
 //}
 
+== 繋がらないときの対処
+
+繋がらないときが結構あります。
+
+
 == まとめ
 
 LINE ThingsとLINE Beaconは別物
