@@ -198,22 +198,31 @@ LINE ThingsやLINE Beaconは以下の図のような立ち位置になります�
 //}
 
 これを見るとわかるのですが、LINE ThingsのLIFF版にしてもMessage版にしても、LINE Beaconも@<b>{実は全てLINE Messaging API(LINE BOT)に紐づく}形になっています。
+また、LIFF版は当たり前なのですが、Message版でもLINE Thingsを使う場合はLIFFアプリケーションに紐づいて作成されます。
+なのでLINE Thingsを使う場合は、LINE Messaging APIでチャンネルを作った上で、LIFFアプリケーションを作成、その上で利用することになります。
 
-なので
+少し階層構造が深くてごちゃっとしそうですが、現時点だとこのような仕組みになっています。
 
 === LINE BeaconやLINE Thingsの比較 
+
+また、これまでの話をまとめて、LINE BeaconとLINE Thingsの特徴などを一覧にしてみました。
 
 //image[3_map][3_map]{
 //}
 
-== LINE Thingsが使えるとデバイス
+@<b>{BLEの機能を一番フルに使えて、細かな作り込みが出来るのはLIFF版のLINE Things}になると思います。
+ただ、フロントエンド開発がやれるかどうか、バックグラウンドな処理が良いかなどでMessage版との選択をすると良いと思います。
 
-色々なマイコンボードがありますが、LINE Thingsが現状使えるデバイスを紹介します。
+シンプルなものでよければLINE ThingsよりもLINE Beaconという選択しもお忘れなく。
 
-* obniz
-* M5Stack
-* M5StickC
-* micro:bit
+#@# == LINE Thingsが使えるとデバイス
+
+#@# 色々なマイコンボードがありますが、LINE Thingsが現状使えるデバイスを紹介します。
+
+#@# * obniz
+#@# * M5Stack
+#@# * M5StickC
+#@# * micro:bit
 
 == LINE Things Messageの無限連続通知
 
@@ -227,17 +236,27 @@ BLEのNotifyを無限ループで発火させてしまうとめちゃ通知く�
 
 == 繋がらないときの対処
 
-繋がらないときが結構あります。
+LINE Thingsですが、開発をしていると繋がらないときが結構あります。
+そういったときは以下を試して再試行してみましょう。
+
+* LINEアプリを再起動する
+* LINE Thingsの連携画面からアプリケーションを削除する
+* スマートフォンのBLE機能のON/OFFを行う
+* スマートフォンのBLE接続ログから過去の接続情報を削除する
+* @<b>{スマートフォンを再起動する}
+* デバイス側を再起動する
+
+太字で書きましたが、デバイス側の実装に関係なく、
+利用しているスマートフォンを再起動すると上手く繋がったというケースを何件か確認しています。
+
+本当はその対処法は厳しいのですが、最終手段として覚えておいて下さい。
+（この辺は公式では言えなさそう......）
 
 == まとめ
 
-LINE ThingsとLINE Beaconは別物
-LINE Things LIFFとLINE THings Messageも使い勝手的に別物
-LINE ThingsもLINE BeaconもLINE BOTの仲間です。
-LINE THings Messageの構成要素
-シナリオセット
-シナリオ
-トリガー
-アクション
-用途に合わせてLINE BeaconとLINE Thingsは使い分けしましょう
-シンプルな使い方だとLINE Beaconの方が簡単に出来る場合もあります。
+LINE ThingsとLINE Beaconの話から、それぞれの機能紹介と違い、ユースケースのイメージなどを紹介しました。
+用途に合わせてLINE BeaconとLINE Thingsは使い分けしていくと良いですが、
+LINE Things Messageは、シナリオセットを上手いこと使いこなせてる事例がまだまだ少ないと思うので、
+この文章を読んだ方がちょっとでも興味を持ってプロトアウトしていってもらえたら嬉しいです。
+
+それでは！
